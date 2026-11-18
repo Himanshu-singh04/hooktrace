@@ -47,6 +47,11 @@ type Origin = {
   mappingId: ID | null; // required non-null for declared_mapping
 };
 type Base = { id: ID; scopeId: ID; origin: Origin };
+type Namespace = {
+  application: string; deployment: string; domain: string;
+  basis: "source_asserted" | "operator_mapping"; refs: Ref[];
+};
+type LocalId = { value: string; namespace: Namespace | null };
 ```
 
 Source pointers address the parsed source: for JSONL, prefix with `/line/<1-based>`
@@ -54,6 +59,9 @@ then the RFC6901 pointer into that line. Whole-file evidence uses the empty poin
 All refs resolve inside this bundle; IDs are unique per collection and references
 carry collection-specific fields. Empty arrays mean “none supplied,” never “none occurred.”
 Strings have a proposed 16 KiB limit except raw files; size/depth limits are in testing.
+Namespace strings and LocalId values are nonempty; unknown namespace is `null`, not
+an empty/shared default. Namespace refs must cite captured application/deployment and
+identifier-domain metadata, not merely the repeated identifier or namespace label.
 
 ## Frozen input bundle and provenance
 
@@ -68,7 +76,7 @@ type ScopeRecord = {
     completeness: "partial" | "source_claimed_complete" | "unknown"; refs: Ref[] };
 };
 type Source = {
-  id: ID; path: string; sha256: Hash; bytes: number;
+  id: ID; path: string; sha256: Hash; bytes: number; // id assigned before file hashing
   kind: "stripe_events" | "delivery_attempts" | "handler_observations" |
     "state_snapshots" | "scope_metadata";
   format: "json" | "jsonl"; capturedAt: Time | null;
@@ -99,13 +107,19 @@ Any redaction creates a new source and hash; do not mutate the frozen original.
 Reject inconsistent scope assignments rather than silently overriding raw `livemode`,
 `account`, or `context`. Missing account/environment identity stays unknown and prevents
 cross-source confirmed links unless an explicitly evidenced scope mapping resolves it.
+Source IDs are stable operator-assigned labels, unique in the manifest and independent
+of content hashes. Separately declared byte-identical exports retain distinct Source
+entries, original paths/provenance, and record origins. Frozen storage may share a
+physical hash-addressed byte copy, but must not merge those logical observations.
+Each data source has exactly one mapping in v1; metadata sources need none. Declare
+another source ID to represent a separate export, not overlapping mappings of one row.
 
 ## Normalized input records
 
-Stripe payloads use a version-pinned reviewed adapter; other input kinds supply the
-same normalized fields below through `normalized_v1`. Importer assigns `id`, `origin`,
-and validated scope references; it must retain every contributing source ref.
-The aggregate record file has the following exact root shape:
+Stripe payloads use a version-pinned reviewed adapter. The `normalized_v1` adapter
+accepts the source-local input rows defined after the output types below, not copies
+of derived records. Importer assigns `id`, `origin`, and validated scope references;
+it retains every contributing source ref. The derived aggregate has this exact shape:
 
 ```typescript
 type Evidence = {
@@ -123,28 +137,72 @@ type Event = Base & {
   interpretation: "supported" | "unsupported_version" | "unsupported_type" | "insufficient";
 };
 type Attempt = Base & {
+  producerNamespace: Namespace | null;
   eventId: string | null; endpointId: string | null; providerAttemptId: string | null;
-  requestId: string | null; sentAt: Time | null; receivedAt: Time | null;
-  arrival: { streamId: ID; index: number } | null; // observed receiving-stream ordinal
+  requestId: LocalId | null; sentAt: Time | null; receivedAt: Time | null;
+  arrival: { streamId: LocalId; index: number } | null; // observed receiving-stream ordinal
   httpStatus: number | null; // integer 100..599
   transport: "response" | "timeout" | "connection_error" | "unknown";
   retryOfAttemptId: ID | null; // only an explicit source relationship
 };
 type Handler = Base & {
-  executionId: string | null; eventId: string | null; attemptId: ID | null;
-  requestId: string | null; subscriptionId: string | null;
+  producerNamespace: Namespace | null;
+  executionId: LocalId | null; eventId: string | null; attemptId: ID | null;
+  requestId: LocalId | null; subscriptionId: string | null;
   observedAt: Time | null;
   phase: "started" | "completed" | "failed" | "write_claimed";
-  transactionId: string | null; errorCode: string | null;
+  transactionId: LocalId | null; errorCode: string | null;
 };
 type Snapshot = Base & {
-  subscriptionId: string; capturedAt: Time | null; storeId: string;
+  producerNamespace: Namespace | null;
+  subscriptionId: string; capturedAt: Time | null; storeId: LocalId;
   readKind: "persisted_read" | "transactional_read" | "unknown";
-  transactionId: string | null; executionId: string | null;
+  transactionId: LocalId | null; executionId: LocalId | null;
   values: { [field: string]: Json }; // explicit captured subset, not a full DB claim
   absentFields: string[]; // explicit observed absence; missing key otherwise unknown
 };
 ```
+
+Raw application rows use these types; all omitted Base/output fields are forbidden:
+
+```typescript
+type InputRowRef = {
+  sourceId: ID; collection: "attempts" | "handlers" | "snapshots"; rowId: ID;
+};
+type InputAttempt = Omit<Attempt, keyof Base | "retryOfAttemptId"> & {
+  rowId: ID; retryOfAttemptRef: InputRowRef | null;
+};
+type InputHandler = Omit<Handler, keyof Base | "attemptId"> & {
+  rowId: ID; attemptRef: InputRowRef | null;
+};
+type InputSnapshot = Omit<Snapshot, keyof Base> & { rowId: ID };
+```
+
+`rowId` is a source-local operator/exporter label, unique within that source. JSON
+array/JSONL rows use the type matching Source.kind. Both reference fields must target
+`attempts`; source-qualified references are required even within the same file.
+`normalized_v1` accepts only delivery_attempts/handler_observations/state_snapshots;
+stripe_events uses `stripe_snapshot_v1`, and scope_metadata is citation-only metadata.
+For example, handler row `h1` can carry
+`attemptRef: {sourceId: "deliveries", collection: "attempts", rowId: "a1"}`.
+Neither file contains a derived record ID or its own hash. Raw Stripe events remain
+unmodified; their provider event IDs are not these row IDs. The snapshot adapter
+assigns observation IDs by source/pointer; application rows associate events by `eventId`.
+
+Normalization has two passes over frozen sources:
+1. Validate row shapes/unique labels and manifest scope assignments. Assign each output
+   ID from the source identity/hash/pointer/kind rule below; build the qualified-row
+   lookup. Preserve the original row (including rowId/ref fields) in raw evidence.
+2. Resolve all qualified refs, including forward/cross-file refs; require the named
+   source, row and collection to exist, then rewrite to `attemptId`/`retryOfAttemptId`.
+   Validate target type, matching supplied event IDs, scope/endpoint/producer compatibility,
+   namespace citation targets, and retry self-links or cycles. Reject dangling/wrong-type
+   refs, known incompatible boundaries/identities, and cycles
+   with located diagnostics before publishing. Unknown boundaries retain the declared
+   reference with a gap/candidate link, never an explicit correlation.
+
+The output ID rule never depends on rewritten links or another derived ID. Merely
+resolving a syntactic reference does not establish its truth or correlation confidence.
 
 All imported rows remain distinct observations, including repeated event exports.
 `eventId` is the provider event identifier; `id` identifies an observation in this bundle.
@@ -156,6 +214,11 @@ Handler completion does not prove a write; transaction IDs remain source asserti
 Event `triggerRequestId` is Stripe's originating API request, not a webhook receipt.
 Attempt/Handler `requestId` means the instrumented receiving HTTP request ID; only
 those matching namespaces may use the `request_id` correlation basis.
+Local execution, transaction, store, and arrival-stream IDs use LocalId too. Namespace
+`domain` identifies the actual uniqueness boundary: e.g. instrumentation boot/session,
+database/store incarnation for transactions, or receiving-stream epoch. A producer
+namespace identifies the emitting application/deployment/instrumentation domain. Reused
+IDs across domains are not equivalent, even with identical account and event IDs.
 Snapshots permit an allowlisted domain subset and must exclude credentials.
 Imported schema support is not a general payment-policy validation.
 
@@ -168,13 +231,14 @@ type Link = {
   relation: "delivery_of" | "execution_for" | "state_for" | "retry_of" | "possible_duplicate";
   confidence: "explicit" | "candidate" | "ambiguous" | "unresolved";
   basis: ("event_id" | "attempt_id" | "execution_id" | "request_id" |
-    "transaction_id" | "object_type" | "subscription_id" | "scope_unknown")[];
-  refs: Ref[]; reason: string;
+    "transaction_id" | "object_type" | "subscription_id" | "scope_unknown" |
+    "namespace_unknown")[];
+  refs: Ref[]; reason: string; limitations: string[];
 };
 type Order = {
   id: ID; members: Node[];
-  basis: "observed_arrival" | "fixture_permutation";
-  streamId: ID; refs: Ref[];
+  basis: "observed_arrival";
+  streamId: LocalId; refs: Ref[];
 };
 ```
 
@@ -187,11 +251,35 @@ links. Unknown scope can produce candidates only. Same account with incompatible
 context needs reviewed mapping, not string similarity. API versions partition payload
 interpretation; joining a known event ID does not authorize cross-version field assumptions.
 
+For a link relying on local identity, require compatible evidenced producer namespaces
+and the namespace of every compared LocalId; compare only the same identifier family.
+Compatibility means matching application/deployment/domain tuples supported by source
+metadata for both sides or an explicit operator mapping citing both sides. Equal
+unauthenticated strings alone, even inside one source, do not establish that boundary.
+Cross-source mappings must explain the shared domain in captured metadata. Unknown
+namespaces yield candidates/gaps, never explicit links; incompatible ones exclude a
+match. Qualified row references do not bypass this rule. Different known producers
+need an evidenced mapping of the shared instrumentation domain, not a guessed join.
+Store identity and transaction-domain evidence must prevent treating equal transaction
+IDs in different stores as the same commit. Unknown stream namespace cannot form Order.
+
+`explicit` means a direct association supported **within the supplied evidence**.
+Namespace/scope metadata and operator mappings are still unauthenticated assertions;
+they cannot prove real application identity, authenticity, or causality. Link limitations
+must state this, including for same-source matches. Preserve supporting refs and any
+conflict; neither namespace equality nor a source hash upgrades trust. Stripe `eventId`
+is a provider identifier, separate from local identifier families: linking to an Event
+by it still requires compatible evidenced Stripe scope, but does not itself select a
+particular application execution, attempt, store, or stream.
+
 Arrival order exists only within one observed receiving stream; unique nonnegative
-indices define it, gaps remain visible. Never synthesize indices from file order,
+indices and a compatible evidenced stream namespace define it, gaps remain visible.
+Order.members contain only imported Attempt nodes from that stream and compatible scope/
+producer; retain unknown-namespace arrival claims as observations without constructing Order.
+Never synthesize indices from file order,
 `created`, signature time, or timestamps from unsynchronized clocks. Separate streams
 form partial orders. Stable ID sorting is permitted only for display, labeled as such.
-A fixture permutation is an explicitly selected model input, never observed production order.
+A fixture sequence exists only in FixtureRun.permutation, never in imported Order.
 
 ## Output records and reports
 
@@ -237,21 +325,34 @@ synthetic fixture/run artifacts, never imported customer evidence. Assertions ca
 only evaluate supplied fields; missing read-back yields `incomplete`, no assertion
 with fabricated `actual`. Fixture event IDs in permutations may repeat for duplicate
 tests. Reports cannot imply one failed assertion describes a production root cause.
-Artifact IDs must be globally unique across the report (prefix with fixture run ID);
+Artifact IDs must be globally unique across the report (prefix with fixture run ID)
+and disjoint from every imported Source.id; reject collisions rather than resolving
+them across registries. A fixture Ref.sourceId resolves only in that run's artifacts;
+an imported Ref resolves only in the frozen manifest. Node, Link, Order, and Finding
+never address fixture snapshots. Assertions resolve snapshotId only within their run;
 artifact paths resolve beneath that run's output directory with the same path rules
 as Source. Retain definition, handler, initial-state, and read-back artifacts matching
 the declared hashes; every fixture Ref must resolve there. Snapshot `scopeId` must
 equal that run's `scope.id`. Imported and synthetic records cannot be correlation targets
-for one another. Seeds are nonnegative safe integers; permutation IDs must belong to
-the packaged fixture definition. Empty permutation is invalid.
+for one another. Proposed fixture `subscription-ordering-v1` defines event tokens U/D;
+permutation is an ordered list of 2–8 tokens containing both U and D, repeats allowed.
+Default is [D,U]. Seed is an integer 0–4294967295, default 0; this deterministic fixture
+does not randomize anything, so seed is recorded but has no behavioral effect. Reject
+other fixture IDs/tokens, empty or oversized lists, missing U/D, and invalid seeds.
+These limits/defaults apply equally to CLI and internal runFixture calls; the report
+records the fully resolved permutation and seed, not omitted option values.
 All findings cite source refs or declare an evidence gap with refs to the bounded
 input being searched. Aggregate counts count records, not unique incidents or failures.
 No global “business success” boolean is inferred from this model.
 
 Canonical derived JSON uses RFC8785 serialization and sorted set-like collections by
-stable ID; ordered permutations remain ordered. IDs derive from source hash/pointer
-plus record kind (or rule/version + sorted evidence IDs for findings), with collision
-checks. Identical frozen input, tool/rules versions, fixture inputs, and limits must
+stable ID; ordered permutations remain ordered. An imported observation ID is `obs:`
+plus SHA-256 of RFC8785 JSON `[Source.id, Source.sha256, rowPointer, collection]`.
+Thus separate byte-identical sources produce separate observations with their own
+origin refs, while re-importing the same manifest/bytes produces identical IDs.
+Reject duplicate source IDs and unexpected derived collisions; never merge rows.
+Finding IDs derive from rule/version plus sorted evidence IDs, with collision checks.
+Identical frozen input, tool/rules versions, fixture inputs, and limits must
 produce byte-identical JSON and Markdown; durations/host paths/run timestamps stay
 in separate local logs. Markdown renders the JSON, escapes input HTML/links, and
 contains a source-hash/pointer index usable without network access.

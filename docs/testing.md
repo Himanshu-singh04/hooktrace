@@ -21,6 +21,19 @@ Stripe accounts, secrets, customer exports, or live webhook delivery are require
 | T10: operator workflow | HT-10 | Fresh supported Mac environment: documented install, disconnect network, import/analyze/reproduce/read report; no account setup or paid service; record time, versions, RAM, and unknown interpretation |
 | T11: later AI | HT-11 | Evidence gaps, malicious retrieved instructions, unsupported claims, wrong citations, conflicting evidence, and exhausted tool budgets; abstain/label hypotheses, reject invalid citations/tool calls, preserve deterministic output |
 
+## Planned contract-review regressions
+
+These cases address review R1–R5; they are specifications for future product tests,
+not tests executed by this documentation change.
+
+| Finding / cases | Planned regression and oracle |
+| --- | --- |
+| R1 / T01,T04 | Raw attempt rows a1/a2 and handler h1 use only source-qualified row refs, including forward/cross-file refs. Hash frozen files, assign output IDs, rewrite refs in pass two; correct targets resolve without any input knowing a derived ID. Reject duplicate source-local labels, dangling/wrong-collection refs, retry self-links/cycles, and known scope/endpoint/producer mismatches; unknown boundary yields a gap, not explicit confidence |
+| R2 / T02,T04 | Declare two byte-identical export files under stable source IDs A/B. Each row gets a different observation ID and its own original source/pointer refs; repeated import yields the same respective IDs. Reject duplicate Source.id; shared physical frozen bytes must not collapse observations |
+| R3 / T04,T05 | Two apps emit the same request/execution/transaction/store/stream values under one Stripe account. Known incompatible namespaces cannot join or order; unknown or label-only namespaces cannot produce explicit links. Equal transaction IDs in different store domains remain separate. Positive control uses captured metadata/evidenced mapping for both producers and matching per-family domains, retaining unauthenticated-source limitations. Repeat same-source ambiguous/missing-domain cases; provider event ID equality never selects a local execution |
+| R4 / T05,T07 | Import Order accepts observed_arrival only and only imported Attempt nodes in one evidenced stream. Reject a synthetic order basis, fixture snapshot target in Node/Link/Order/Finding, cross-registry Ref, and source/artifact ID collision. FixtureRun.permutation and run-local assertion/artifact refs still resolve independently |
+| R5 / T06,T08,T10 | Omitted options and explicit D,U / seed 0 produce identical FixtureRun values; rerun recorded options/hashes to identical output. Exercise U,D; duplicate tokens; lengths 2/8 accepted and 0/1/9 rejected; missing U/D, empty tokens, unknown IDs/fixtures, whitespace, URL/path/payload, unknown/repeated options, negative/fractional/overflow seeds rejected. Seeds 0/4294967295 accepted and recorded with no behavioral effect in this fixture. Direct runFixture calls enforce the same bounds |
+
 ## Synthetic corpus and oracles
 
 Keep fixture source, provenance, expected findings, supported API-version labels, and

@@ -93,12 +93,21 @@ flowchart LR
 #### Interface Specifications
 
 Inbound: local manifest/raw files per [evidence contract](../../evidence-contract.md),
-plus a packaged fixture ID and permutation. Outbound: frozen/normalized files,
+plus a packaged fixture ID, permutation, and seed. Outbound: frozen/normalized files,
 `Report`, Markdown rendering, `Diagnostic`, and separate run logs. Local OS file
 permissions provide access control; there is no HTTP authentication surface.
 Future CLI grammar (unimplemented): `import --manifest PATH --out DIR`,
-`analyze --bundle DIR --out DIR`, `reproduce --fixture ID --variant buggy|fixed --out DIR`.
-No URL, shell, arbitrary handler path, or plugin option is accepted.
+`analyze --bundle DIR --out DIR`, and
+`reproduce --fixture subscription-ordering-v1 --variant buggy|fixed --out DIR [--permutation TOKENS] [--seed N]`.
+Fixture, variant, and output are required. Proposed `--permutation` is a comma-separated
+list of 2–8 exact U/D tokens, both present, repeats allowed; default `D,U`. No whitespace,
+empty tokens, file references, or arbitrary event IDs/payloads are accepted. Proposed
+`--seed` is decimal digits only in range 0–4294967295; default 0. Record resolved values
+in FixtureRun even when options are omitted. This fixture has no random behavior;
+seed is retained for replay metadata, not used to change input order or timestamps.
+Reject unknown/repeated options, unsupported fixtures/variants, bad permutations/seeds,
+and arbitrary positional inputs before execution. No URL, shell, handler path, plugin,
+imported bundle, or remote target option is accepted. These are proposed interfaces.
 Proposed exit codes: 0 complete; 2 input/contract error; 3 local I/O failure;
 4 fixture assertion failure/incomplete run; 1 unexpected internal error.
 Analysis gaps are valid report content, not command failures.
@@ -195,14 +204,22 @@ No HTTP endpoints. Proposed in-process contracts:
 failure; filesystem handles remain inside Store except the isolated fixture store.
 `FrozenSources` is the validated Manifest plus source-ID-to-frozen-byte mapping;
 `ArtifactHashes` maps generated relative output paths to SHA-256. No hidden network I/O.
+CLI resolves permutation/seed defaults before calling runFixture; the internal function
+requires all four arguments and revalidates the same fixture/variant/token/length/seed limits.
+Direct callers cannot bypass the allowlist or supply arbitrary exported events.
 
 #### Application Data Models
 
 Use the contract verbatim; do not invent a second event or report shape. Event,
 Attempt, Handler, and Snapshot are observations, not a unified success record.
-Link records retain competing targets; Order records express only supported sequences.
+Source-local input row labels/qualified refs are separate from derived IDs. Normalize
+in two passes: assign IDs including stable Source.id, then resolve/rewrite and validate
+references. Byte-identical separately declared exports keep separate origins/IDs.
+Producer and per-identifier namespaces carry evidence refs and source-claim limitations;
+unknown namespace cannot support explicit local correlations. Link records retain
+competing targets; Order records express only imported observed-arrival sequences.
 Finding records cite evidence and limitations. FixtureRun has a separate namespace,
-explicit initial state/handler hashes, ordered inputs, and read-back assertions.
+explicit initial state/handler hashes, its own permutation, and read-back assertions.
 
 #### Integration Points
 
@@ -249,9 +266,11 @@ Both outcomes carry `modeled_scenario_not_production_cause` in JSON and Markdown
 
 Main action: inspect exports and demonstrate a local modeled failure.
 1. CLI validates limits/options; Store freezes declared local bytes and verifies hashes.
-2. Importer validates schema/scope and extracts observations with source locations.
+2. Importer validates schema/scope, assigns source-qualified observation IDs, then
+   resolves raw row refs in a second pass with type/boundary/cycle checks.
 3. Analyzer builds compatible links/partial orders and evidence-bounded findings.
-4. Optional FixtureRunner starts a fresh synthetic store and runs explicit inputs.
+4. Optional FixtureRunner starts a fresh synthetic store and runs resolved, bounded
+   permutation/seed inputs; imported orders never contain synthetic nodes.
 5. Reporter serializes findings and separate model results; Store publishes atomically.
 6. Operator reviews unknowns/citations before sharing; no production mutation occurs.
 
@@ -267,7 +286,10 @@ redacted `INTERNAL_ERROR`; logs outside reports. Network failure is N/A: no netw
 
 ### Complex Logic (if applicable)
 
-Partition by evidenced scope; index event/attempt/execution/transaction identifiers.
+Partition by evidenced scope; index provider event IDs separately from local identifiers.
+Local request/execution/transaction/store/stream matches require evidenced namespace
+compatibility, not equal strings or a shared source alone. Namespace metadata remains
+a source assertion, never authenticated application identity or causal proof.
 Resolve direct compatible refs first; retain indirect candidates and conflicts. Rules
 use observations without converting log absence into a negative fact. Group duplicate
 receipts while preserving distinct rows; reject cyclic explicit retry relationships.

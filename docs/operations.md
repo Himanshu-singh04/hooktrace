@@ -37,6 +37,15 @@ permissions before import. Use a fresh output directory for each run; review sou
 scope/coverage and hash validation before reading findings. Run fixture variants only
 against the bundled resettable store, then inspect persisted read-back assertions.
 
+Proposed future subcommand examples (not runnable today):
+`reproduce --fixture subscription-ordering-v1 --variant buggy --permutation D,U --seed 0 --out DIR1`
+and `reproduce --fixture subscription-ordering-v1 --variant fixed --permutation D,U --seed 0 --out DIR2`.
+Omitting permutation/seed resolves to `D,U` and `0`; record those resolved values and
+package/fixture hashes for repeat runs. The proposed input limit is 2–8 U/D tokens,
+both present, repeats allowed; seed is decimal 0–4294967295. This fixture does not use
+randomness. Unsupported fixtures, tokens, seeds, options, and arbitrary input paths/
+payloads are rejected. Only `--out` chooses a write location; it cannot select a handler.
+
 ## Data lifecycle and safety boundaries
 
 Collect → freeze exact bytes/hash provenance → validate → normalize → analyze →
