@@ -10,7 +10,7 @@ Correlate exported subscription events, logs, and state snapshots, then reproduc
 
 ## Status
 
-Repository initialized. Product design, implementation, and the dedicated OpenCode project session are pending. Stripe subscription workflows are the proposed initial scope. No application or test commands exist yet.
+Repository foundation is under review. Product design, implementation, and the dedicated OpenCode project session are pending. Stripe subscription workflows are the proposed initial scope. No application commands exist yet; foundation checks are documented below.
 
 ## Development workspace
 
@@ -19,6 +19,10 @@ Local checkout: `/Volumes/AIWorkspace/projects/hooktrace`.
 Execution will use existing local or customer-owned resources, with no new initial founder hosting or inference expenditure. This product has an independent repository and release lifecycle.
 
 ## Git workflow
+
+See [contributing](CONTRIBUTING.md), [development and delivery](docs/development.md),
+and the [foundation record](docs/foundation.md) for checks, authenticated review,
+agent attribution, and evidence requirements.
 
 - Commit source, documentation, reviewed fixtures, and dependency lockfiles.
 - Keep credentials, OpenCode databases, model weights, caches, and raw customer evidence outside Git.
