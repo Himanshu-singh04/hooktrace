@@ -23,8 +23,8 @@ Stripe accounts, secrets, customer exports, or live webhook delivery are require
 
 ## Planned contract-review regressions
 
-These cases address review R1–R5; they are specifications for future product tests,
-not tests executed by this documentation change.
+These cases address contract reviews; product cases are planned tests, not executed
+by this documentation change. Milestone/research cases require later evidence review.
 
 | Finding / cases | Planned regression and oracle |
 | --- | --- |
@@ -33,6 +33,13 @@ not tests executed by this documentation change.
 | R3 / T04,T05 | Two apps emit the same request/execution/transaction/store/stream values under one Stripe account. Known incompatible namespaces cannot join or order; unknown or label-only namespaces cannot produce explicit links. Equal transaction IDs in different store domains remain separate. Positive control uses captured metadata/evidenced mapping for both producers and matching per-family domains, retaining unauthenticated-source limitations. Repeat same-source ambiguous/missing-domain cases; provider event ID equality never selects a local execution |
 | R4 / T05,T07 | Import Order accepts observed_arrival only and only imported Attempt nodes in one evidenced stream. Reject a synthetic order basis, fixture snapshot target in Node/Link/Order/Finding, cross-registry Ref, and source/artifact ID collision. FixtureRun.permutation and run-local assertion/artifact refs still resolve independently |
 | R5 / T06,T08,T10 | Omitted options and explicit D,U / seed 0 produce identical FixtureRun values; rerun recorded options/hashes to identical output. Exercise U,D; duplicate tokens; lengths 2/8 accepted and 0/1/9 rejected; missing U/D, empty tokens, unknown IDs/fixtures, whitespace, URL/path/payload, unknown/repeated options, negative/fractional/overflow seeds rejected. Seeds 0/4294967295 accepted and recorded with no behavioral effect in this fixture. Direct runFixture calls enforce the same bounds |
+| R6 / T02,T08,T09 | At controlled boundaries swap root/ancestor/leaf paths for symlinks to an outside sentinel, including the manifest. Capture only the pinned original descriptor's bytes or fail; no outside-sentinel bytes enter evidence. Check regular-file enforcement, concurrent mutation rejection, descriptor cleanup, and PLATFORM_UNSUPPORTED without unsafe fallback; B01 must prove platform feasibility |
+| R7 / T01,T07 | Validate every allowed subscription-state/1 field/type; reject unknown schema/keys, credential or metadata fields, nested structures, null, invalid status, string booleans, and negative/fractional/unsafe counts. Use synthetic secrets to verify rejected values are absent from diagnostics/reports; raw quarantine is still sensitive, not declared secret-free |
+| R9 / T01,T03 | Reject a key present in values and absentFields (including false/zero values), duplicate absence names, and unapproved absent fields. Accept disjoint subsets; a key in neither remains unknown, never defaulted |
+| R10 / T06,T07 | Valid typed equal values derive pass; unequal values derive fail. Reject forged result, expected/actual mismatch with fixture/snapshot, and cross-type coercion. Missing/absent fields, wrong read-back types, non-persisted reads, invalid artifact hashes, or missing required checks produce incomplete with no fabricated assertion; empty checks never pass |
+| R11 / T01 | Reject start>end; accept start=end and start<end; each null-endpoint combination remains unknown and is not inferred from events. Invalid UTC timestamps remain errors |
+| R12 / milestone review | B06 can close with developer T10 smoke and Q1/Q2/Q4/Q5 before pilots exist; Q3 is measured and assessed in B07 only. Verify M4→B07/M5 has no pilot prerequisite cycle |
+| R13 / B07 evidence review | Require five interviews, three pilots, H2 comprehension/next checks, H3 manual-workflow comparisons and regression outcomes, and H4 post-use buyer/pricing questions. Missing collection blocks completion; negative signals remain negative, not substituted with general pilot feedback |
 
 ## Synthetic corpus and oracles
 
@@ -59,9 +66,13 @@ Observed host: 16 GiB RAM and 8 logical CPUs; no inference throughput is known.
 | --- | --- |
 | Q1 determinism | T07: ten runs of identical frozen inputs/tool/rules/fixture produce identical JSON and Markdown bytes; separate timing logs excluded |
 | Q2 bounded performance | T09: synthetic 10,000-record, 50 MiB bundle; five runs, report median and max wall time/RSS; every analysis ≤10 s and ≤512 MiB peak RSS on recorded host/runtime |
-| Q3 first use | T10: three proposed pilot engineers, at least two complete synthetic workflow and correctly distinguish unknown from failed in ≤15 min after dependencies installed |
+| Q3 first use (B07) | T10 pilot evaluation after B06: three proposed pilot engineers, at least two complete synthetic workflow and correctly distinguish unknown from failed in ≤15 min after dependencies installed |
 | Q4 isolation | T08: network-denied integration run plus socket/DNS observation shows zero outbound attempts; adversarial import cases cause no code execution or writes outside owned output |
 | Q5 publication integrity | T09: interrupt at each write/publication boundary; zero valid-looking partial final bundles; re-run to new directory verifies source hashes |
+
+B06 uses developer-run T10 installation/demo smoke plus Q1/Q2/Q4/Q5; it does not
+require pilot participants or a Q3 result. B07 owns Q3 and H1–H4 evidence collection/
+assessment, following the explicit [roadmap acceptance matrix](roadmap.md).
 
 Initial proposed hard caps: 50 MiB total raw input, 10 MiB/file, 10,000 normalized
 records, depth 32, 16 KiB normalized strings, 100 candidate targets/link, 100,000 total

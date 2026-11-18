@@ -6,6 +6,10 @@ version: "0.1"
 
 # Solution Design Document
 
+All 55 template headings, including bracketed example/flow labels, are deliberately
+retained verbatim. Their bodies name the actual examples and action and are filled;
+no unresolved body clarification markers remain. ADRs are still review proposals.
+
 ## Validation Checklist
 
 ### CRITICAL GATES (Must Pass)
@@ -108,7 +112,7 @@ seed is retained for replay metadata, not used to change input order or timestam
 Reject unknown/repeated options, unsupported fixtures/variants, bad permutations/seeds,
 and arbitrary positional inputs before execution. No URL, shell, handler path, plugin,
 imported bundle, or remote target option is accepted. These are proposed interfaces.
-Proposed exit codes: 0 complete; 2 input/contract error; 3 local I/O failure;
+Proposed exit codes: 0 complete; 2 input/contract/unsupported-platform error; 3 local I/O failure;
 4 fixture assertion failure/incomplete run; 1 unexpected internal error.
 Analysis gaps are valid report content, not command failures.
 
@@ -192,11 +196,16 @@ Derived outputs use new directories and reference parent hashes. CLI writes a si
 temporary directory, flushes files, then renames on the same filesystem; never publishes
 a half-built bundle. No concurrent writes to one output; fail on existing destination.
 Power-loss durability depends on filesystem behavior, not merely rename success.
+Store pins the input root and traverses each component with descriptor-relative,
+no-follow opens; it validates and freezes from the same file descriptor, including
+the manifest. No path-check/reopen fallback is permitted. B01 gates supported runtime/
+platform selection on demonstrated parent/leaf-swap resistance and descriptor cleanup;
+ordinary Node path APIs alone are not assumed sufficient. Unsupported platforms fail closed.
 
 #### Internal API Changes
 
 No HTTP endpoints. Proposed in-process contracts:
-`freeze(Manifest, inputRoot) -> FrozenSources`, `normalize(FrozenSources) -> Evidence`,
+`freeze(manifestRelativePath, pinnedInputRoot) -> FrozenSources`, `normalize(FrozenSources) -> Evidence`,
 `analyze(Evidence, scopes, rulesVersion) -> {links, orders, findings}`,
 `runFixture(fixtureId, variant, permutation, seed) -> FixtureRun`,
 `render(Report, citationIndex) -> {jsonBytes, markdownBytes}`,
@@ -204,6 +213,8 @@ No HTTP endpoints. Proposed in-process contracts:
 failure; filesystem handles remain inside Store except the isolated fixture store.
 `FrozenSources` is the validated Manifest plus source-ID-to-frozen-byte mapping;
 `ArtifactHashes` maps generated relative output paths to SHA-256. No hidden network I/O.
+Store acquires the pinned root and manifest via the contract's no-follow descriptor
+procedure; callers never supply a path-validated manifest for an unsafe later reopen.
 CLI resolves permutation/seed defaults before calling runFixture; the internal function
 requires all four arguments and revalidates the same fixture/variant/token/length/seed limits.
 Direct callers cannot bypass the allowlist or supply arbitrary exported events.
@@ -220,6 +231,11 @@ unknown namespace cannot support explicit local correlations. Link records retai
 competing targets; Order records express only imported observed-arrival sequences.
 Finding records cite evidence and limitations. FixtureRun has a separate namespace,
 explicit initial state/handler hashes, its own permutation, and read-back assertions.
+Snapshots use the closed `hooktrace.subscription-state/1` field/type allowlist; values
+keys and unique absentFields are disjoint. Reject inverted known coverage endpoints.
+FixtureRunner derives assertion results from exact typed expected/read-back comparisons;
+unavailable evidence makes the run incomplete. Publication validates these invariants,
+including consistency with the cited snapshot/fixture, without trusting stored pass flags.
 
 #### Integration Points
 
@@ -267,7 +283,8 @@ Both outcomes carry `modeled_scenario_not_production_cause` in JSON and Markdown
 Main action: inspect exports and demonstrate a local modeled failure.
 1. CLI validates limits/options; Store freezes declared local bytes and verifies hashes.
 2. Importer validates schema/scope, assigns source-qualified observation IDs, then
-   resolves raw row refs in a second pass with type/boundary/cycle checks.
+   resolves raw row refs in a second pass with type/boundary/cycle checks. Validate
+   snapshot allowlists/presence consistency and coverage endpoints before publication.
 3. Analyzer builds compatible links/partial orders and evidence-bounded findings.
 4. Optional FixtureRunner starts a fresh synthetic store and runs resolved, bounded
    permutation/seed inputs; imported orders never contain synthetic nodes.
@@ -281,6 +298,10 @@ Unsupported provider version/type => retained context and interpretation limitat
 Conflicting identities => conflict finding, no merged assertion. Limit exceeded =>
 bounded failure with counts; no silent truncation. Disk full/removed volume/permission
 failure => `IO_FAILED`, preserve raw sources, leave clearly incomplete temp directory.
+Unavailable secure acquisition primitives => `PLATFORM_UNSUPPORTED`, with no weaker
+fallback. Symlink substitution/type failure => input rejection; changed captured bytes
+or a declared hash mismatch => no published bundle. Invalid snapshot/coverage fields
+=> `INPUT_INVALID`, with located diagnostics that omit rejected values.
 Fixture timeout/read-back failure => incomplete model result. Unexpected failures =>
 redacted `INTERNAL_ERROR`; logs outside reports. Network failure is N/A: no network path.
 
@@ -356,7 +377,8 @@ All implementation-impacting decisions below are proposals; none claims owner co
   User confirmed: **Pending**.
 - [ ] ADR-2: Frozen file bundles plus versioned JSON rather than a database.
   Rationale: inspectability/reproduction; trade-off: bounded dataset scale and explicit
-  publication/recovery. Canonicalization/schema-library selection: B01. User confirmed: **Pending**.
+  publication/recovery. Canonicalization/schema-library and descriptor-relative file
+  acquisition feasibility (including any native helper): B01. User confirmed: **Pending**.
 - [ ] ADR-3: Narrow snapshot adapter and conservative deterministic rules.
   Rationale: source-level traceability; trade-off: unsupported versions/types stay
   uninterpreted. Exact payload-version support matrix: B01. User confirmed: **Pending**.
@@ -374,10 +396,13 @@ All implementation-impacting decisions below are proposals; none claims owner co
 
 Proposed, not measured: Q1 identical canonical output across ten repeated runs;
 Q2 10,000 records/50 MiB analyzed in ≤10 s and ≤512 MiB peak RSS on the observed
-Mac; Q3 a fresh user completes synthetic import/report/reproduction in ≤15 minutes;
+Mac; Q3 at least two of three pilot engineers complete the synthetic workflow and
+correctly distinguish unknown from failed in ≤15 minutes after dependency installation;
 Q4 zero outbound product traffic or imported code execution in adversarial tests;
 Q5 interrupted writes never publish valid-looking partial reports. See T07/T09/T10/T08
 in [testing](../../testing.md) for measurement protocols and caps.
+Q3 belongs to B07 after B06. B06 verifies developer-run installation/demo and Q1/Q2/Q4/Q5;
+pilot evidence is not a prerequisite for producing the package used in those pilots.
 
 ## Acceptance Criteria
 

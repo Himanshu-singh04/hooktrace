@@ -36,6 +36,11 @@ Check mounted volume, free space for raw + derived + temporary copies, and write
 permissions before import. Use a fresh output directory for each run; review source
 scope/coverage and hash validation before reading findings. Run fixture variants only
 against the bundled resettable store, then inspect persisted read-back assertions.
+Use only a platform/runtime whose B01 descriptor-relative no-follow acquisition gate
+has passed. Import pins the root, traverses directories through retained descriptors,
+and freezes the same validated file descriptor; a path check followed by reopening is
+not equivalent. Unsupported acquisition fails closed. If files change during capture,
+stop and prepare a stable export; descriptor pinning is not a full filesystem snapshot.
 
 Proposed future subcommand examples (not runnable today):
 `reproduce --fixture subscription-ordering-v1 --variant buggy --permutation D,U --seed 0 --out DIR1`
@@ -56,6 +61,12 @@ lookup fills a gap. Do not put credentials or raw customer evidence into Git, is
 PRs, chat prompts, or model corpora. Reports can contain sensitive identifiers too.
 Use a separately redacted derivative for sharing; recompute hashes and retain truthful
 provenance. Redaction and hashing do not certify anonymity or authenticity.
+The proposed `hooktrace.subscription-state/1` snapshot allowlist accepts only documented
+booleans, status enums, and safe counts; arbitrary/nested values and inconsistent
+presence/absence are rejected. This does not certify raw exports, identifiers, or other
+report strings as secret-free. Rejected imports may leave sensitive frozen temporary
+bytes; inspect/retain/delete them under the same local evidence policy, never share them
+as a sanitized report. Validation diagnostics must not echo rejected field values.
 
 Raw originals and reports use local OS access controls; no built-in encryption or
 secure-erasure guarantee is proposed. Operator chooses retention/backups; default is
@@ -66,7 +77,10 @@ unless an actual configured storage mechanism has been verified.
 ## Failure and recovery
 
 - Invalid import: fix a new input manifest/export, preserve original bytes, rerun into
-  a new directory. Unsupported schemas fail; unsupported provider fields stay limited.
+  a new directory. Invalid snapshot keys/types, overlapping values/absence, or inverted
+  coverage fail validation. Unsupported schemas fail; unsupported provider fields stay limited.
+- Unsupported secure acquisition: stop and use a reviewed supported runtime/platform;
+  do not disable no-follow enforcement or switch to a path-check/reopen fallback.
 - Hash mismatch: stop analysis; compare source provenance with the operator. Never
   “repair” hashes in place to make an altered bundle look original.
 - Disk full, unplug, permission failure, or crash: preserve original input, inspect
@@ -76,6 +90,8 @@ unless an actual configured storage mechanism has been verified.
   Corrupt raw evidence requires a trustworthy backup/new export; inference cannot repair it.
 - Fixture failure: retain run hashes/assertions, reset a fresh synthetic store, repeat
   exact permutation. A failed buggy assertion can be expected demonstration output.
+  Missing/invalid persisted read-back is incomplete, not a pass/fail assertion; results
+  are derived from typed expected/actual equality and checked against fixture artifacts.
 - Package regression: select a prior reviewed artifact; do not downgrade schema in place.
 - Lost pendrive: GitHub restores pushed source only. Local evidence and unpushed files
   need operator backups; Mac session history is separate, not a project backup.
@@ -104,5 +120,7 @@ Product model tooling and project development worker provisioning are separate t
 
 Use [development and delivery](development.md) for exact-revision review/approval,
 authentication, attribution, and recovery. Temporary documentation specialists are not
-persistent project owners and cannot approve their own work. B06/B07 must record
-actual startup/recovery/packaging checks before any alpha is described as runnable.
+persistent project owners and cannot approve their own work. B06 must record actual
+startup/recovery/packaging checks before an alpha is described as runnable. B07 then
+collects pilot Q3 and H1–H4 interview/workflow/pricing evidence for the release decision;
+pilot results are not prerequisites for building the package used in those pilots.

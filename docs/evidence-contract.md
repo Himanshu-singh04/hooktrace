@@ -97,10 +97,25 @@ type FrozenManifest = {
 ```
 
 Paths are relative regular files beneath the selected input root: reject absolute
-paths, `..`, symlinks, devices, archives, and path escapes. File names in the frozen
-store are generated from hashes, never copied from executable/path-bearing payloads.
-Freeze exact bytes before parsing; verify declared byte counts/hashes against the frozen
-copies. Hash the exact manifest bytes separately. References refer to these copies.
+paths, `..`, symlinks, devices, archives, and path escapes. Proposed acquisition pins
+the operator-selected root as an open directory descriptor, reached component-by-component
+from a trusted directory anchor with symlink following disabled. Validate its directory
+type/identity with descriptor metadata. Resolve each source component relative to retained
+directory descriptors using no-follow directory opens, then open the leaf no-follow and
+require a regular file via `fstat`. Apply this to the manifest too; never validate a path
+and subsequently reopen it by name. Freeze, count, and hash bytes read from that same
+validated descriptor into an exclusively created owned temporary file; parse only the
+frozen copy. A replaced path must not redirect the read to a new symlink target.
+Close descriptors on success/failure; check metadata before/after reading and reject
+detected concurrent mutation or declared size/hash mismatch. This is not a guarantee
+of a filesystem-wide snapshot or protection against an authorized in-place writer.
+File names in the frozen store are generated from hashes, never from payload paths.
+Hash the exact manifest bytes separately. References refer to the frozen copies.
+The OS/runtime must provide verified descriptor-relative/no-follow semantics: B01 must
+prove feasibility on the supported Mac/runtime/filesystem, including parent/leaf swaps.
+Do not assume ordinary Node path APIs or final-component `O_NOFOLLOW` secure ancestors.
+Any required native helper/runtime change needs review; unsupported platforms fail closed
+with `PLATFORM_UNSUPPORTED`, without a realpath/lstat-then-open fallback.
 The frozen-manifest file's own SHA-256 is stored in the report, avoiding a self-hash.
 Capture timestamps are exporter assertions; import wall-clock time belongs in a run log.
 Any redaction creates a new source and hash; do not mutate the frozen original.
@@ -113,6 +128,10 @@ entries, original paths/provenance, and record origins. Frozen storage may share
 physical hash-addressed byte copy, but must not merge those logical observations.
 Each data source has exactly one mapping in v1; metadata sources need none. Declare
 another source ID to represent a separate export, not overlapping mappings of one row.
+For coverage, validate parsed UTC instants: when both endpoints are non-null require
+`start <= end`; equality is allowed, inversion is `INPUT_INVALID`. A null endpoint
+remains unknown (not infinity or a bound inferred from event times). Even a valid range
+and `source_claimed_complete` describe a source assertion, not proven complete coverage.
 
 ## Normalized input records
 
@@ -153,15 +172,35 @@ type Handler = Base & {
   phase: "started" | "completed" | "failed" | "write_claimed";
   transactionId: LocalId | null; errorCode: string | null;
 };
+type SnapshotFields = { // closed allowlist for hooktrace.subscription-state/1
+  access: boolean;
+  status: "incomplete" | "incomplete_expired" | "trialing" | "active" |
+    "past_due" | "canceled" | "unpaid" | "paused";
+  cancellationTombstone: boolean;
+  processedEventCount: number; // nonnegative safe integer
+  mutationCount: number; // nonnegative safe integer
+};
+type SnapshotField = keyof SnapshotFields;
 type Snapshot = Base & {
   producerNamespace: Namespace | null;
   subscriptionId: string; capturedAt: Time | null; storeId: LocalId;
   readKind: "persisted_read" | "transactional_read" | "unknown";
   transactionId: LocalId | null; executionId: LocalId | null;
-  values: { [field: string]: Json }; // explicit captured subset, not a full DB claim
-  absentFields: string[]; // explicit observed absence; missing key otherwise unknown
+  valuesSchema: "hooktrace.subscription-state/1";
+  values: Partial<SnapshotFields>; // optional captured fields; no other keys
+  absentFields: SnapshotField[]; // explicit observed absence; otherwise unknown
 };
 ```
+
+The values schema is proposed for imported and fixture snapshots alike. Reject unknown
+schema versions, unapproved keys (including credential/free-text/metadata fields), nested
+objects/arrays, nulls, and wrong field types before normalization or report publication.
+Booleans cannot be strings or 0/1; status is exactly the enum above; counts are integers
+0–9007199254740991. Do not coerce, silently drop, or automatically rename fields. New
+fields require a reviewed schema version. Empty `values` is allowed for partial evidence.
+`absentFields` must contain unique allowlisted names and be disjoint from `values` keys;
+overlap or duplicates are `INPUT_INVALID`. A field in neither is unknown. Recorded false,
+zero, and an explicit absence have different meanings; absence is not a default value.
 
 Raw application rows use these types; all omitted Base/output fields are forbidden:
 
@@ -219,7 +258,10 @@ Local execution, transaction, store, and arrival-stream IDs use LocalId too. Nam
 database/store incarnation for transactions, or receiving-stream epoch. A producer
 namespace identifies the emitting application/deployment/instrumentation domain. Reused
 IDs across domains are not equivalent, even with identical account and event IDs.
-Snapshots permit an allowlisted domain subset and must exclude credentials.
+The closed values schema limits normalized state content; it does not certify arbitrary
+raw input, identifiers, other string fields, or reports as secret-free. Frozen raw files
+can still contain sensitive rejected content; operators must minimize exports and review
+redaction before sharing. Do not render rejected field values in diagnostics/reports.
 Imported schema support is not a general payment-policy validation.
 
 ## Relationships and ordering
@@ -291,10 +333,11 @@ type Finding = {
   nodes: Node[]; linkIds: ID[]; refs: Ref[];
   limitations: string[]; // required; nonempty for hypotheses/gaps
 };
-type Assertion = {
-  id: ID; snapshotId: ID; field: string; expected: Json; actual: Json;
-  result: "pass" | "fail"; // actual is a captured value, never fabricated for unknown
-};
+type Assertion = { [K in SnapshotField]: {
+  id: ID; snapshotId: ID; field: K;
+  expected: SnapshotFields[K]; actual: SnapshotFields[K];
+  result: "pass" | "fail"; // derived, never an independently trusted flag
+} }[SnapshotField];
 type FixtureRun = {
   schemaVersion: "hooktrace.fixture-run/1"; id: ID;
   fixtureId: ID; fixtureVersion: string; fixtureSha256: Hash;
@@ -321,9 +364,23 @@ type Diagnostic = {
 ```
 
 Fixture snapshots use a separate run namespace; their refs resolve into retained
-synthetic fixture/run artifacts, never imported customer evidence. Assertions can
-only evaluate supplied fields; missing read-back yields `incomplete`, no assertion
-with fabricated `actual`. Fixture event IDs in permutations may repeat for duplicate
+synthetic fixture/run artifacts, never imported customer evidence. Assertions use the
+packaged fixture's expected field/value and the named run-local snapshot's `values[field]`
+from persisted read-back with verified artifact hashes. Both must satisfy that field's
+values-schema type. Derive `pass` iff they are exactly equal: boolean identity, exact
+case-sensitive enum string, or equal safe-integer numeric value (1 and 1.0 are equal;
+0 and -0 are equal). No coercion, truthiness, tolerance, or arbitrary JSON comparison.
+Derive `fail` only for two available valid values that differ. Missing/absent field,
+unknown/non-persisted read, invalid read-back type, or unverifiable artifact yields
+`incomplete` with a diagnostic; never invent actual=false/null/0 or emit a pass/fail
+assertion for that missing check. Invalid read-back bytes may be retained as a run
+artifact, but must not appear as a schema-invalid Snapshot in the report. Before
+publishing, validate actual against the cited
+snapshot, expected against the fixture, and result against this comparison; inconsistent
+serialized assertions are invalid, not trusted output. A run is `incomplete` if any
+required check lacks evidence; otherwise `failed` if any assertion fails, and `passed`
+only if every required fixture assertion exists and passes (no vacuous empty success).
+Fixture event IDs in permutations may repeat for duplicate
 tests. Reports cannot imply one failed assertion describes a production root cause.
 Artifact IDs must be globally unique across the report (prefix with fixture run ID)
 and disjoint from every imported Source.id; reject collisions rather than resolving
@@ -363,7 +420,7 @@ Reject unknown major schema versions; no implicit migrations. A future migration
 creates a new derived bundle with parent hash and tool version, preserving originals.
 Proposed diagnostics: `INPUT_INVALID`, `VERSION_UNSUPPORTED`, `SCOPE_CONFLICT`,
 `REFERENCE_INVALID`, `HASH_MISMATCH`, `LIMIT_EXCEEDED`, `IO_FAILED`,
-`FIXTURE_INCOMPLETE`, and `INTERNAL_ERROR`. Unsupported Stripe interpretation is
+`PLATFORM_UNSUPPORTED`, `FIXTURE_INCOMPLETE`, and `INTERNAL_ERROR`. Unsupported Stripe interpretation is
 retained with a finding; unsupported HookTrace schema is a fatal validation error.
 Use redacted messages with record refs, never dump payloads or credentials.
 Fatal validation prevents publishing a report; an incomplete fixture may appear in
