@@ -2,8 +2,9 @@
 
 Status: planning/rename PR #5 and [persistent-worker provisioning #7](https://github.com/Himanshu-singh04/hooktrace/issues/7)
 are complete. [B01](b01-decisions.md) contains research, not an application/package
-release, product server/model endpoint or customer pilot. Exact implementation choices
-still require owner confirmation.
+release, product server/model endpoint or customer pilot. PR #9 accepted conditional
+Python/Acacia/SQLite direction; build and acquisition policy still require review.
+[B01a](b01a-acquisition-policy.md) retains no-go for arbitrary-export acquisition.
 
 ## What lives where
 
@@ -37,8 +38,11 @@ Check mounted volume, free space for raw + derived + temporary copies, and write
 permissions before import. Use a fresh output directory for each run; review source
 scope/coverage and hash validation before reading findings. Run fixture variants only
 against the bundled resettable store, then inspect persisted read-back assertions.
-Use only a platform/runtime whose B01 descriptor-relative no-follow acquisition gate
-has passed. Import pins the root, traverses directories through retained descriptors,
+Use only a platform/runtime whose complete acquisition policy has passed review;
+B01 synthetic tests and an observed nodev mount are insufficient. No arbitrary
+export preparation/import command is authorized yet; copying to staging does not
+solve source-side acquisition. Proposed import pins the root and traverses directories
+through retained descriptors,
 and freezes the same validated file descriptor; a path check followed by reopening is
 not equivalent. Unsupported acquisition fails closed. If files change during capture,
 stop and prepare a stable export; descriptor pinning is not a full filesystem snapshot.

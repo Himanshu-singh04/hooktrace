@@ -2,7 +2,8 @@
 
 Status: planning review under [issue #4](https://github.com/Himanshu-singh04/hooktrace/issues/4) completed in [PR #5](https://github.com/Himanshu-singh04/hooktrace/pull/5).
 This is a proposed product, not implemented functionality or validated demand.
-Exact implementation choices remain gated; [B01 recommendations](b01-decisions.md) require owner confirmation before separate implementation tasks.
+[B01](b01-decisions.md) conditional Python/Acacia/SQLite direction was accepted in PR #9;
+exact build and acquisition choices remain gated before separate implementation tasks.
 
 ## Problem and first customer
 
@@ -36,8 +37,8 @@ Pricing, licensing, distribution, and any paid offering need a later owner decis
 Agreed task constraints: local-first, independent repository, zero new initial hosting
 or inference spend, no live Stripe calls, no remote replay, no execution of imported
 code, honest unknowns, and human-reviewed delivery. Only synthetic artifacts enter Git.
-Proposals: TypeScript/Node modular CLI, file bundles, normalized v1 schema, bounded
-rules, and a bundled ordering fixture. Runtime/version, package manager, dependencies,
+Conditional B01 direction: Python modular CLI, file bundles, normalized v1 schema,
+bounded rules, and a bundled SQLite ordering fixture. Runtime/version, dependencies,
 and supported Stripe payload versions remain gated in the [design](specs/001-mvp/solution-design.md).
 
 ## User workflows

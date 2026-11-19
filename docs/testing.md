@@ -6,6 +6,10 @@ All mandatory CI fixtures are synthetic, offline, and reviewed; no paid inferenc
 Stripe accounts, secrets, customer exports, or live webhook delivery are required.
 The [B01 record](b01-decisions.md) documents executed research assertions and their
 limits; those results do not establish the planned product cases below.
+[B01a](b01a-acquisition-policy.md) adds source-grounded mount/staging counterexamples
+and reruns B01 controls. No device/mount enforcement test was performed; arbitrary
+acquisition remains no-go. Future injected mount observations can test pre-leaf
+control flow only, not establish native enforcement or a trusted staging boundary.
 
 ## Contract and behavior matrix
 
