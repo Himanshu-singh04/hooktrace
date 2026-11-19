@@ -1,0 +1,25 @@
+[
+  {
+    "id": "evt_synthetic_update",
+    "object": "event",
+    "api_version": "2025-02-24.acacia",
+    "account": "acct_synthetic",
+    "created": 1740787200,
+    "livemode": false,
+    "type": "customer.subscription.updated",
+    "data": {
+      "object": {
+        "id": "sub_synthetic",
+        "object": "subscription",
+        "customer": "cus_synthetic",
+        "livemode": false,
+        "status": "active",
+        "current_period_start": 1740787200,
+        "current_period_end": 1743465600
+      },
+      "previous_attributes": {"status": "trialing"}
+    },
+    "request": {"id": "req_synthetic_origin", "idempotency_key": "synthetic-key"},
+    "pending_webhooks": 0
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "evt_synthetic_delete",
+    "object": "event",
+    "api_version": "2025-02-24.acacia",
+    "account": "acct_synthetic",
+    "created": 1740787200,
+    "livemode": false,
+    "type": "customer.subscription.deleted",
+    "data": {
+      "object": {
+        "id": "sub_synthetic",
+        "object": "subscription",
+        "customer": {"id": "cus_synthetic", "object": "customer"},
+        "livemode": false,
+        "status": "canceled",
+        "current_period_start": 1740787200,
+        "current_period_end": 1743465600
+      }
+    },
+    "request": null,
+    "pending_webhooks": 0
+  }
+]
