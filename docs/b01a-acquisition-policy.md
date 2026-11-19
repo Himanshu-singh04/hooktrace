@@ -1,6 +1,13 @@
 # B01a acquisition-safety prerequisite
 
-Status: **Decision ready for coordinator review**, [issue #10](https://github.com/Himanshu-singh04/hooktrace/issues/10),
+Status: **Research NO-GO accepted**, [PR #11](https://github.com/Himanshu-singh04/hooktrace/pull/11)
+merged at `529f8d5e06601def268828eaad993111987c9a76`; main
+[CI 44510104992](https://github.com/Himanshu-singh04/hooktrace/actions/runs/44510104992) passed.
+Acceptance does not authorize acquisition implementation or producer-created intake;
+that workflow remains an unaccepted proposal. The original evidence and limits below
+are retained; no new native enforcement or runtime validation is claimed.
+
+Original handoff status: **Decision ready for coordinator review**, [issue #10](https://github.com/Himanshu-singh04/hooktrace/issues/10),
 2026-11-19. **NO-GO for arbitrary-export acquisition** on the observed host or
 proposed product stack. Native nodev has a useful, narrower device-open guarantee
 in the reviewed source; it does not establish the whole acquisition boundary.
@@ -327,4 +334,5 @@ Acceptance mapping: A1 threat/ordering table; A2 two strategies and D1–D9/SDK 
 A3 no native executable needed; A4 concrete source-grounded no-go plus rerun existing
 synthetic controls, **not** an enforcement pass; A5 explicit verdicts/gates; A6 B01
 history and exact checks. Coordinator reproduction and founder exact-revision
-approval remain pending.
+approval were pending at the original handoff; the subsequent accepted merge is
+recorded above.

@@ -58,6 +58,7 @@ acquisition pending a separately reviewed input/mount boundary.
 | [Testing](../../testing.md), [roadmap](../../roadmap.md), [operations](../../operations.md) | HIGH | Verification, dependencies, and actual execution constraints |
 | [B01 research](../../b01-decisions.md) | CRITICAL | Observed acquisition/store feasibility, exact candidate versions, primary sources and unresolved implementation gates |
 | [B01a policy research](../../b01a-acquisition-policy.md) | CRITICAL | Darwin/SDK evidence, device/mount/hard-link threat model, no-go and trusted-intake decision prerequisite |
+| [B01b fixture research](../../b01b-fixture-corpus.md) | HIGH | Coordinator-verified narrow corpus and finite expectations; integration re-verification/approval pending, no canonicalizer or importer |
 | [Stripe webhooks](https://docs.stripe.com/webhooks) | HIGH | Acknowledgments, retries, duplicate events, ordering, signature requirements |
 | [Stripe Event object](https://docs.stripe.com/api/events/object) | HIGH | Event identity, creation time, API-version and account/context fields |
 | [Subscription webhooks](https://docs.stripe.com/billing/subscriptions/webhooks) | HIGH | Subscription event meanings and limits of invoice/access inference |
@@ -385,7 +386,8 @@ cycles or imports from analysis into filesystem/fixture execution modules.
 Planning review and conditional B01 research acceptance are complete; the
 [B01 decision frontier](../../b01-decisions.md) records observations, candidate pins
 and prerequisites for ADR-1–4. The unchecked entries retain implementation gates;
-[B01a](../../b01a-acquisition-policy.md) proposes no-go pending a separate intake decision.
+[B01a](../../b01a-acquisition-policy.md) is accepted research retaining NO-GO;
+producer-created intake remains an unaccepted workflow proposal.
 
 - [ ] ADR-1: B01 recommends Python modular CLI rather than the initial TypeScript/Node proposal.
   Rationale: native descriptor-relative acquisition and stdlib SQLite; trade-off:
@@ -404,7 +406,10 @@ and prerequisites for ADR-1–4. The unchecked entries retain implementation gat
   Rationale: source-level traceability; trade-off: unsupported versions/types stay
   uninterpreted. B01 proposes exact Acacia support and unsupported Basil/context;
   version-grounded samples are research, not shipped compatibility. User confirmed:
-  **Conditional Acacia direction accepted in PR #9**; complete fixtures still pending.
+  **Conditional Acacia direction accepted in PR #9**. B01b's narrow corpus was
+  independently verified; its integration revision awaits re-verification/approval.
+  Full provider/schema validation, canonical identity/hash oracles and missing-event-ID
+  output disposition remain open.
 - [ ] ADR-4: Only a packaged terminal-cancellation ordering fixture in MVP.
   Rationale: demonstrable local effect without executing imports; trade-off: limited
   production fidelity. B01 proposes SQLite after rollback/dedup/reset/reopen feasibility;

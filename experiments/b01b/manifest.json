@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "hooktrace.input/1",
+  "bundleId": "synthetic-b01b",
+  "sources": [
+    {"id":"updated","path":"events-updated.json","sha256":"79df2dedab36d64116f39aef3be93e44333eb9a4c72f840194ff564e03211b1a","bytes":688,"kind":"stripe_events","format":"json","capturedAt":null,"producer":"hand-authored B01b partial snapshot","provenance":"synthetic","redacted":false,"signatureEvidence":"unavailable"},
+    {"id":"deleted","path":"events-deleted.json","sha256":"83d07e60341a22e97d80b435d176a9a29542bc45b64ffd3856e4ad68bffb0e58","bytes":605,"kind":"stripe_events","format":"json","capturedAt":null,"producer":"hand-authored B01b partial snapshot","provenance":"synthetic","redacted":false,"signatureEvidence":"unavailable"},
+    {"id":"handlers","path":"handlers.jsonl","sha256":"a27f2450d3b9262f2c401d5491231a0c05742e808dd92c249516360c0167875b","bytes":904,"kind":"handler_observations","format":"jsonl","capturedAt":null,"producer":"hand-authored B01b observation","provenance":"synthetic","redacted":false,"signatureEvidence":"unavailable"},
+    {"id":"attempts","path":"attempts.jsonl","sha256":"72e98f67afa6a55438794da04cdf14caa1e32ca07b53a14dc3534b101072363a","bytes":894,"kind":"delivery_attempts","format":"jsonl","capturedAt":null,"producer":"hand-authored B01b observation","provenance":"synthetic","redacted":false,"signatureEvidence":"unavailable"},
+    {"id":"snapshots","path":"snapshots.jsonl","sha256":"c9a9b7e97ce21b86a52fb93b5e97c1821a76ff44dadf94b2abb81bac88c6e0fb","bytes":734,"kind":"state_snapshots","format":"jsonl","capturedAt":null,"producer":"hand-authored B01b observation","provenance":"synthetic","redacted":false,"signatureEvidence":"unavailable"},
+    {"id":"meta","path":"metadata.json","sha256":"e0aca1046b1cb7518795521e220757827f5db795afce08e7e94e7bbffd50fbe7","bytes":957,"kind":"scope_metadata","format":"json","capturedAt":null,"producer":"hand-authored B01b scope/namespace assertions","provenance":"synthetic","redacted":false,"signatureEvidence":"unavailable"}
+  ],
+  "scopes": [{
+    "id": "scope-test",
+    "value": {"accountId":"acct_synthetic","environment":"test","environmentId":"sandbox_synthetic","context":null},
+    "origin": {"refs":[{"sourceId":"meta","pointer":"/scope"}],"method":"source_field","mappingId":null},
+    "coverage": {"start":"2025-03-01T00:00:00.000Z","end":"2025-03-01T00:00:03.000Z","completeness":"partial","refs":[{"sourceId":"meta","pointer":"/coverage"}]}
+  }],
+  "mappings": [
+    {"id":"map-updated","sourceId":"updated","scopeId":"scope-test","adapter":"stripe_snapshot_v1","recordsPointer":"","declaredApiVersion":"2025-02-24.acacia"},
+    {"id":"map-deleted","sourceId":"deleted","scopeId":"scope-test","adapter":"stripe_snapshot_v1","recordsPointer":"","declaredApiVersion":"2025-02-24.acacia"},
+    {"id":"map-handlers","sourceId":"handlers","scopeId":"scope-test","adapter":"normalized_v1","recordsPointer":"","declaredApiVersion":null},
+    {"id":"map-attempts","sourceId":"attempts","scopeId":"scope-test","adapter":"normalized_v1","recordsPointer":"","declaredApiVersion":null},
+    {"id":"map-snapshots","sourceId":"snapshots","scopeId":"scope-test","adapter":"normalized_v1","recordsPointer":"","declaredApiVersion":null}
+  ]
+}

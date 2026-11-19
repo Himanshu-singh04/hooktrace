@@ -1,0 +1,21 @@
+{
+  "scope": {
+    "accountId": "acct_synthetic",
+    "environment": "test",
+    "environmentId": "sandbox_synthetic",
+    "context": null
+  },
+  "coverage": {
+    "start": "2025-03-01T00:00:00.000Z",
+    "end": "2025-03-01T00:00:03.000Z",
+    "completeness": "partial"
+  },
+  "namespaces": {
+    "producer": {"application": "synthetic-app", "deployment": "test-deploy", "domain": "receiver-boot-1"},
+    "request": {"application": "synthetic-app", "deployment": "test-deploy", "domain": "http-boot-1"},
+    "execution": {"application": "synthetic-app", "deployment": "test-deploy", "domain": "execution-boot-1"},
+    "stream": {"application": "synthetic-app", "deployment": "test-deploy", "domain": "arrival-epoch-1"},
+    "store": {"application": "synthetic-app", "deployment": "test-deploy", "domain": "store-incarnation-1"}
+  },
+  "provenance": "Original hand-authored synthetic data for HookTrace issue 12; no real export or provider certification."
+}
