@@ -1,16 +1,21 @@
 # B01b narrow synthetic fixture corpus
 
-Status: worker corpus ready for independent oracle review for
-[issue #12](https://github.com/Himanshu-singh04/hooktrace/issues/12).
+Status: original corpus independently verified for
+[issue #12](https://github.com/Himanshu-singh04/hooktrace/issues/12);
+accepted-main integration awaits coordinator re-verification and founder approval.
 Original founder instruction: “ok proceed with the further tasks”, following
 authorization for independent rolling work with sequential exact-revision approvals.
 The issue preserves the full refined scope and A1–A6 acceptance criteria.
 
-Base is approved main `97f1669ddd92a510f7d637429b1c21f53713ae40`, not pending B01a.
+Original branch base was approved main `97f1669ddd92a510f7d637429b1c21f53713ae40`,
+independent of then-pending B01a.
 PR #9 accepted conditional Acacia/SQLite research after the R7 correction and later
 founder approval; see [merge verification](https://github.com/Himanshu-singh04/hooktrace/pull/9#issuecomment-7002315562).
 This does not approve a runtime build, arbitrary-export acquisition or product B02.
-B01a branch/PR #11 is preserved and independent; this task changes only new B01b files.
+The original delivery changed only new B01b files. Following B01a approval/merge,
+the coordinator assigned integration of accepted main
+`529f8d5e06601def268828eaad993111987c9a76` into this same branch/PR without rebase
+or force-push. Issue #12 A1–A6 and all corpus semantics remain unchanged.
 
 ## Scope and oracle boundary
 
@@ -60,8 +65,10 @@ No Stripe SDK, API, CLI, account, keys, copied exports or installed dependency u
 
 Provider declarations are Stripe/Ask Bjørn Hansen MIT-licensed source; only links,
 field names and original synthetic values are used. Website docs are cited, not
-relicensed as MIT. Hand-reviewed expectations are worker research proposals until
-the coordinator independently audits them; no normalizer generates its own goldens.
+relicensed as MIT. The coordinator independently audited these expectations at
+`ce33c6429a0bcf9d80784280be127ff246b1457a`; see
+[verification](https://github.com/Himanshu-singh04/hooktrace/pull/13#issuecomment-7004044531).
+No normalizer generates its own goldens; the integration revision needs re-verification.
 
 ## Corpus inventory and independent expectations (A2)
 
@@ -112,8 +119,9 @@ logical source and origin even when raw bytes, hash and provider ID are identica
 The field values and variant outcomes were written from the cited contract and
 tagged declarations, then checked against source bytes. They are not output captured
 from an implementation under test. The harness's predicates are reviewable research
-logic, **not an independent certification of their own correctness**; the coordinator
-must audit both the expected table and predicates against those authorities.
+logic, **not an independent certification of their own correctness**. The linked
+coordinator verification audits both expected table and predicates against those
+authorities at the original head, without claiming production schema conformance.
 
 B01 classifies absent required event/entity/customer identity as `insufficient`.
 The normalized Event type nevertheless requires a non-null `eventId`. Therefore the
@@ -184,7 +192,8 @@ does not pass all T01/T02/T08/T09 product cases. B02 must implement those separa
 
 ## Rerun evidence and limits (A6)
 
-From the repository root, with installed Python 3.13.4 and existing actionlint 1.7.12:
+Original reviewed-head commands, from the repository root with installed Python
+3.13.4 and existing actionlint 1.7.12 (retained as historical evidence):
 
 ```sh
 python3 experiments/b01b/check_corpus.py
@@ -212,8 +221,49 @@ isolation/network-denied tests, complete Stripe schemas/SDK validation, handler/
 execution, correlation, canonicalization conformance or customer exports. Unchanged
 B01 probes retain their prior evidence and were not rerun for this fixture-only task.
 
-B01a's delivered research is no-go for arbitrary exports; its policy, runtime/build,
-schema/JCS, isolation and separate B02 authorization gates remain open. This branch
-does not contain or modify pending B01a files. Corpus readiness addresses one fixture
-prerequisite only. A1–A6 are delivered for coordinator review; independent oracle
-audit and founder approval remain unverified/pending, not implied by green checks.
+B01a's accepted research retains NO-GO for arbitrary exports; an enforceable acquisition
+boundary, runtime/build, schema/JCS, isolation and separate B02 authorization remain
+open gates. Producer-created intake remains an unaccepted workflow proposal. Corpus
+readiness addresses one fixture prerequisite only. The original A1–A6 audit passed;
+the integration revision requires coordinator re-verification and founder approval.
+
+## Accepted-main integration
+
+Standing founder instruction: keep independent work progressing while approvals are
+sequential. The integration assignment preserves issue #12 A1–A6 and directs a merge
+of accepted B01a main into existing PR #13, with status/docs reconciliation only.
+Verified clean branch head `ce33c6429a0bcf9d80784280be127ff246b1457a` and unchanged
+remote B01b, then fetched and confirmed exact main
+`529f8d5e06601def268828eaad993111987c9a76` (accepted B01a, main CI 44510104992 passed).
+
+`git merge --no-ff --no-commit 529f8d5e06601def268828eaad993111987c9a76` completed
+automatically with **zero conflicts**. No conflict resolutions or corpus edits were
+needed. The merge preserves both original B01b commits and accepted B01a history.
+Status reconciliation updates README, B01 prerequisites, B01a acceptance status,
+B01b review/integration history, roadmap, testing and SDD bodies. Primary-source
+observations, requirements and all SDD headings are preserved. All files under
+`experiments/`, including raw corpus, manifest, expected facts, variants and checker,
+remain byte-identical to the prior reviewed head. The historical coordinator review
+checkout is untouched.
+
+Integration rerun commands:
+
+```sh
+python3 -B experiments/b01b/check_corpus.py
+python3 scripts/check_repository.py
+python3 -m unittest discover -s scripts -p 'test_*.py'
+/Volumes/AIWorkspace/caches/actionlint/1.7.12/actionlint -shellcheck= -pyflakes=
+git diff --check 529f8d5e06601def268828eaad993111987c9a76
+```
+
+Integration local results: all five commands exited 0; corpus checks passed with
+6 raw sources plus manifest identity, 40 facts, 5 observations, 76 variants and
+5 additional corruption controls; repository checks passed, 25 policy tests passed,
+actionlint and full-diff checks passed. Inline Git comparisons found all experiments
+byte-identical to the prior reviewed head, contract/product/operations identical to
+accepted main, and all **55 SDD headings** identical to both revisions. Zero unmerged
+paths; only documentation changes relative to the prior reviewed head. Replacement
+SHA/CI and final attribution are recorded in the PR implementation response.
+No dependency acquisition, runtime/drive change, new product test, native
+acquisition probe or provider retrieval is needed for this documentation integration.
+Canonical identity/hash oracles and missing-event-ID disposition remain explicit gates.

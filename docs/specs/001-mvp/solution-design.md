@@ -1,6 +1,6 @@
 ---
 title: "HookTrace offline subscription investigation MVP"
-status: planning-reviewed-implementation-decisions-pending
+status: conditional-research-accepted-acquisition-blocked
 version: "0.1"
 ---
 
@@ -8,7 +8,8 @@ version: "0.1"
 
 All 55 template headings, including bracketed example/flow labels, are deliberately
 retained verbatim. Their bodies name the actual examples and action and are filled;
-no unresolved body clarification markers remain. ADRs are still review proposals.
+no unresolved body clarification markers remain. B01's conditional research direction
+is accepted; full implementation decisions and acquisition policy remain gated.
 
 ## Validation Checklist
 
@@ -17,7 +18,7 @@ no unresolved body clarification markers remain. ADRs are still review proposals
 - [x] Required sections populated; template heading sequence preserved.
 - [x] No unresolved clarification markers; open decisions recorded as ADRs.
 - [x] Architecture pattern and rationale stated.
-- [ ] All architecture decisions confirmed by user: planning PR #5 is merged; exact B01 choices remain pending.
+- [ ] All architecture decisions confirmed by user: planning PR #5 and conditional B01 research PR #9 are merged; build/acquisition decisions remain pending.
 - [x] Proposed interfaces specified or linked; implementation schemas remain future work.
 
 ### QUALITY CHECKS (Should Pass)
@@ -25,7 +26,7 @@ no unresolved body clarification markers remain. ADRs are still review proposals
 - [x] Context relevance, discovered commands, component/directory mapping documented.
 - [x] Constraints, requirements, interfaces, errors, and test targets connected.
 - [x] Naming and responsibility boundaries reviewed for overlap.
-- [ ] B01 runtime/build and adapter recommendations confirmed before implementation; research results available, owner decision pending.
+- [ ] Runtime/build, full adapter fixtures and acquisition policy validated before implementation; B01 research acceptance is conditional.
 - [ ] Product tests executed: no product runtime exists.
 
 ## Constraints
@@ -37,9 +38,10 @@ effect must remain distinct. Event creation time is not arrival or causal order.
 CON-3: Source/docs and dedicated worker history/OAuth live on pendrive; Mac CPU/RAM
 execute work. Coordinator history/App key stay on Mac; provisioning #7 is complete.
 See [operations](../../operations.md). Worker inference is not product-local AI.
-CON-4: Planning PR #5 is complete. [B01 research](../../b01-decisions.md) compares
-runtime/file acquisition, dependency/version, payload and store choices; owner
-confirmation remains pending before product implementation.
+CON-4: Planning PR #5 and [B01 research](../../b01-decisions.md) are approved/merged.
+Conditional Python/Acacia/SQLite direction does not approve a runtime build or product
+implementation. [B01a](../../b01a-acquisition-policy.md) returns no-go for arbitrary
+acquisition pending a separately reviewed input/mount boundary.
 
 ## Implementation Context
 
@@ -55,6 +57,8 @@ confirmation remains pending before product implementation.
 | [Development](../../development.md), [foundation](../../foundation.md) | HIGH | Delivery policy and current implementation status |
 | [Testing](../../testing.md), [roadmap](../../roadmap.md), [operations](../../operations.md) | HIGH | Verification, dependencies, and actual execution constraints |
 | [B01 research](../../b01-decisions.md) | CRITICAL | Observed acquisition/store feasibility, exact candidate versions, primary sources and unresolved implementation gates |
+| [B01a policy research](../../b01a-acquisition-policy.md) | CRITICAL | Darwin/SDK evidence, device/mount/hard-link threat model, no-go and trusted-intake decision prerequisite |
+| [B01b fixture research](../../b01b-fixture-corpus.md) | HIGH | Coordinator-verified narrow corpus and finite expectations; integration re-verification/approval pending, no canonicalizer or importer |
 | [Stripe webhooks](https://docs.stripe.com/webhooks) | HIGH | Acknowledgments, retries, duplicate events, ordering, signature requirements |
 | [Stripe Event object](https://docs.stripe.com/api/events/object) | HIGH | Event identity, creation time, API-version and account/context fields |
 | [Subscription webhooks](https://docs.stripe.com/billing/subscriptions/webhooks) | HIGH | Subscription event meanings and limits of invoice/access inference |
@@ -148,8 +152,9 @@ Propose a modular monolith CLI with pure normalization/analysis/rendering functi
 and a small filesystem shell. Fixed local inputs support auditable repeatability;
 no database server, queue, hosted UI, or inference service is needed for the first bug.
 The initial TypeScript proposal fits JSON contracts and a Node handler fixture.
-B01 instead recommends Python to obtain secure acquisition without a second runtime
-or native helper; exact runtime/build and packaging remain pending owner approval.
+B01's conditional Python direction supplies descriptor primitives and SQLite without
+a second runtime; complete acquisition safety is still blocked. Exact runtime/build,
+any native mount-policy support and packaging require separate review/approval.
 Separate observations from hypotheses, and production evidence from model output.
 
 ## Building Block View
@@ -207,6 +212,9 @@ no-follow opens; it validates and freezes from the same file descriptor, includi
 the manifest. No path-check/reopen fallback is permitted. B01 gates supported runtime/
 platform selection on demonstrated parent/leaf-swap resistance and descriptor cleanup;
 ordinary Node path APIs alone are not assumed sufficient. Unsupported platforms fail closed.
+B01a does not establish arbitrary-tree device/mount safety: nodev observations and
+post-open checks do not prevent all lookup effects. Trusted intake is a separate
+proposed founder decision, not an implemented alternative or contract change.
 
 #### Internal API Changes
 
@@ -375,32 +383,40 @@ cycles or imports from analysis into filesystem/fixture execution modules.
 
 ## Architecture Decisions
 
-All implementation-impacting decisions below are proposals; none claims owner confirmation.
-Planning review is complete; the [B01 decision frontier](../../b01-decisions.md) records
-observations, exact candidate pins, tradeoffs and B02 prerequisites for ADR-1–4.
+Planning review and conditional B01 research acceptance are complete; the
+[B01 decision frontier](../../b01-decisions.md) records observations, candidate pins
+and prerequisites for ADR-1–4. The unchecked entries retain implementation gates;
+[B01a](../../b01a-acquisition-policy.md) is accepted research retaining NO-GO;
+producer-created intake remains an unaccepted workflow proposal.
 
 - [ ] ADR-1: B01 recommends Python modular CLI rather than the initial TypeScript/Node proposal.
   Rationale: native descriptor-relative acquisition and stdlib SQLite; trade-off:
   runtime build/packaging and fewer compile-time JSON guarantees. Node remains an
   alternative only with a reviewed secure helper. Exact candidate pins: B01 record.
-  User confirmed: **Pending**.
+  User confirmed: **Conditional Python research direction accepted in PR #9**;
+  exact runtime/build and implementation authorization pending.
 - [ ] ADR-2: Frozen file bundles plus versioned JSON rather than a database.
   Rationale: inspectability/reproduction; trade-off: bounded dataset scale and explicit
-  publication/recovery. Canonicalization/schema-library and descriptor-relative file
-  acquisition feasibility: demonstrated with installed Python on Mac/APFS in B01;
+  publication/recovery. Canonicalization/schema-library conformance remains untested.
+  Descriptor-relative acquisition was demonstrated with installed Python on Mac/APFS;
   only generated synthetic trees tested. Device-node/mount safety remains unverified
   and blocking for B02; rerun approved runtime/build. Node path-only is no-go.
-  User confirmed: **Pending**.
+  User confirmed: **B01 research accepted, acquisition policy/build still pending**.
 - [ ] ADR-3: Narrow snapshot adapter and conservative deterministic rules.
   Rationale: source-level traceability; trade-off: unsupported versions/types stay
   uninterpreted. B01 proposes exact Acacia support and unsupported Basil/context;
-  version-grounded samples are research, not shipped compatibility. User confirmed: **Pending**.
+  version-grounded samples are research, not shipped compatibility. User confirmed:
+  **Conditional Acacia direction accepted in PR #9**. B01b's narrow corpus was
+  independently verified; its integration revision awaits re-verification/approval.
+  Full provider/schema validation, canonical identity/hash oracles and missing-event-ID
+  output disposition remain open.
 - [ ] ADR-4: Only a packaged terminal-cancellation ordering fixture in MVP.
   Rationale: demonstrable local effect without executing imports; trade-off: limited
   production fidelity. B01 proposes SQLite after rollback/dedup/reset/reopen feasibility;
   the B04 packaged fixture remains unimplemented.
   Future trusted adapters require real OS-enforced network/filesystem restriction;
-  spawning a child process is not a sandbox. User confirmed: **Pending**.
+  spawning a child process is not a sandbox. User confirmed: **Conditional SQLite
+  direction accepted in PR #9**; packaged fixture and isolation still pending.
 - [ ] ADR-5: Optional cited retrieval/explanations and bounded tools after MVP.
   Rationale: evidence must work independently; trade-off: less flexible narrative.
   Model/license/hardware and enforcement experiments precede implementation.

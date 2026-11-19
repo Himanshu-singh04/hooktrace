@@ -1,6 +1,11 @@
 # Roadmap and bounded backlog
 
-Status: M0 planning review completed in [PR #5](https://github.com/Himanshu-singh04/hooktrace/pull/5); [B01 research](b01-decisions.md) proposes choices for owner confirmation under issue #8.
+Status: M0 planning review completed in [PR #5](https://github.com/Himanshu-singh04/hooktrace/pull/5);
+[B01 research](b01-decisions.md) accepted conditionally in PR #9. [B01a](b01a-acquisition-policy.md)
+research NO-GO was accepted in PR #11; arbitrary exports remain blocked and the
+producer-created intake workflow is still an unaccepted proposal. [B01b](b01b-fixture-corpus.md)
+has coordinator-verified narrow fixture evidence; integration re-verification and
+founder approval remain pending in PR #13.
 No M1–M6 product milestone has shipped; ordering denotes dependencies, not dates.
 Each implementation task requires its own issue, reviewed acceptance, checks, and PR.
 Requirements: [product](product.md); ADRs: [design](specs/001-mvp/solution-design.md).
@@ -22,6 +27,8 @@ Requirements: [product](product.md); ADRs: [design](specs/001-mvp/solution-desig
 | Task | Scope and dependency | Acceptance and tests |
 | --- | --- | --- |
 | B01 | Runtime/contract spike after M0; ADR-1–4 | Compare supported Node/TypeScript versions and minimal packaging/test/schema/canonicalization choices; pin exact versions only after approval. Prove pinned-root descriptor-relative/no-follow acquisition feasible on the proposed Mac/runtime/filesystem, including ancestor/leaf swaps; review any required helper or runtime change before B02. Review at least two differing Stripe snapshot API-version samples and select explicit supported/unsupported matrix. Choose transactional synthetic store with close/reopen verification. Record install/license/offline findings; no production integration |
+| B01a | Acquisition threat-policy decision after accepted B01 research; before B02 | Compare descriptor-bound nodev policy and genuinely trusted intake; exact Darwin/SDK evidence, explicit actor/device/mount/hard-link assumptions and no-go where guarantees remain unsupported. Issue #10 A1–A6; no product importer or arbitrary-tree authority |
+| B01b | Narrow synthetic fixture corpus after B01; independent of acquisition implementation | Issue #12 A1–A6: one positive bundle, tagged field provenance, independent expectations, finite variants and fixed-file stdlib corruption checks. Coordinator verified the original corpus; current integration awaits re-verification/approval. No canonicalizer or importer |
 | B02 | Implement contract/import/freeze after B01; HT-01,02,08,09 | Valid synthetic bundle imports; invalid fields/paths/refs/hashes fail with locations; descriptor-based capture resists symlink substitution; closed snapshot fields/types, disjoint presence/absence, and coverage bounds validated; immutable source hashes survive interruption; T01–02,08–09 |
 | B03 | Deterministic correlation/rules after B02; HT-03–05 | Retry/duplicate rows retained, uncertain links visible, no timestamp-derived causal claims; exact expected findings for T03–05 |
 | B04 | Packaged ordering fixture after B02 and fixture ADR; HT-06,08 | Buggy [D,U] fails access assertion; fixed both orders and duplicates pass after reset/read-back; derive typed comparisons from available persisted evidence, missing checks yield incomplete; reject inconsistent serialized assertions; no exported inputs executed; T06,08 |
@@ -32,12 +39,14 @@ Requirements: [product](product.md); ADRs: [design](specs/001-mvp/solution-desig
 
 ## Initial bounded implementation task
 
-Following completed planning review, **B01** is the first task: resolve runtime/adapter/store
-choices with small synthetic experiments and a decision record. It must not quietly
-bootstrap a full application. Exit requires exact recommended versions, alternatives,
-licensing/install constraints, supported payload fixtures, secure file-acquisition
-feasibility evidence, and owner decision on ADRs. Unsupported acquisition primitives
-block that platform/runtime proposal; path validation alone is not an accepted fallback.
+**B01** is complete as conditional research, not an application or validated runtime.
+**B01a** is accepted as a research NO-GO; it does not resolve the acquisition gate or
+approve producer-created intake. **B01b** supplies the narrow synthetic corpus and
+finite expectations, pending approval of its integrated revision. Runtime/build,
+complete provider/schema validation, independent canonical identity/hash oracles,
+missing-event-ID output disposition and isolation remain open before separately
+authorizing B02. Unsupported acquisition primitives block that platform/runtime
+proposal; path validation alone is not an accepted fallback.
 
 The first code-bearing product slice, **B02**, is one bounded import: a manifest,
 two subscription event exports, an attempt, a handler observation, and a state snapshot.

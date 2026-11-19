@@ -1,7 +1,8 @@
 # Evidence contract v1 — proposal
 
-Status: planning reviewed in PR #5; exact implementation choices remain pending in
-[B01](b01-decisions.md). No product parser or schema exists yet. Applies to HT-01–HT-09.
+Status: planning reviewed in PR #5; [B01](b01-decisions.md) conditional research
+direction accepted in PR #9. Build/acquisition gates remain open; no product parser
+or schema exists yet. Applies to HT-01–HT-09.
 This document is the single contract authority for the proposed input, normalized
 records, correlations, fixture runs, and reports. JSON Schemas and fixtures follow approval.
 
@@ -117,6 +118,11 @@ prove feasibility on the supported Mac/runtime/filesystem, including parent/leaf
 Do not assume ordinary Node path APIs or final-component `O_NOFOLLOW` secure ancestors.
 Any required native helper/runtime change needs review; unsupported platforms fail closed
 with `PLATFORM_UNSUPPORTED`, without a realpath/lstat-then-open fallback.
+The [B01a investigation](b01a-acquisition-policy.md) returns no-go for arbitrary
+exports: post-open type/mount checks cannot undo device or foreign-mount effects.
+Neither observed nodev nor copying into staging alone establishes safe acquisition.
+An enforceable input/mount policy needs separate review; these requirements are not
+weakened or implemented by the research.
 The frozen-manifest file's own SHA-256 is stored in the report, avoiding a self-hash.
 Capture timestamps are exporter assertions; import wall-clock time belongs in a run log.
 Any redaction creates a new source and hash; do not mutate the frozen original.

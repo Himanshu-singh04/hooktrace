@@ -10,7 +10,7 @@ Correlate exported subscription events, logs, and state snapshots, then reproduc
 
 ## Status
 
-Planning/rename [PR #5](https://github.com/Himanshu-singh04/hooktrace/pull/5) and persistent-worker [provisioning #7](https://github.com/Himanshu-singh04/hooktrace/issues/7) are complete. The proposed MVP investigates exported Stripe subscription evidence offline and reproduces an ordering bug in a bundled synthetic handler. Exact implementation decisions remain pending; no product runtime or release exists. [B01 research](docs/b01-decisions.md) supplies rerunnable acquisition/store experiments and recommendations for owner approval; repository checks are in [CONTRIBUTING](CONTRIBUTING.md).
+Planning/rename [PR #5](https://github.com/Himanshu-singh04/hooktrace/pull/5), persistent-worker [provisioning #7](https://github.com/Himanshu-singh04/hooktrace/issues/7), and conditional [B01 research](docs/b01-decisions.md) are approved/complete. The proposed MVP investigates exported Stripe subscription evidence offline and reproduces an ordering bug in a bundled synthetic handler. No product runtime or release exists. [B01a](docs/b01a-acquisition-policy.md) is accepted research retaining NO-GO for arbitrary exports; producer-created intake remains an unaccepted proposal. [B01b](docs/b01b-fixture-corpus.md) supplies coordinator-verified narrow fixture evidence; its main-integration revision awaits re-verification and founder approval. Repository checks are in [CONTRIBUTING](CONTRIBUTING.md).
 
 ## Product documentation
 
@@ -43,4 +43,4 @@ agent attribution, and evidence requirements.
 - Report the commit and push result to the coordinator. A local commit is not a remote backup until the push succeeds.
 - Use task branches for substantive implementation work and preserve unrelated changes.
 
-Planning review is complete; exact runtime, dependencies, acquisition, payload and store choices still require owner confirmation. Product implementation follows approved, bounded tasks.
+Conditional Python/Acacia/SQLite direction is accepted; exact runtime/build, dependencies, acquisition policy, full payload fixtures and isolation remain gated. Product implementation follows separately approved, bounded tasks.

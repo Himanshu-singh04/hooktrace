@@ -1,7 +1,11 @@
 # B01 runtime, contract and store decision frontier
 
-Status: **Frontier-ready** research for [issue #8](https://github.com/Himanshu-singh04/hooktrace/issues/8), 2026-11-19.
-Owner confirmation of ADR-1–4 remains pending; this is not an accepted ADR or product.
+Status: **Accepted conditional research** for [issue #8](https://github.com/Himanshu-singh04/hooktrace/issues/8), 2026-11-19.
+PR #9 merged after founder approval of the R7 revision; see the
+[merge verification](https://github.com/Himanshu-singh04/hooktrace/pull/9#issuecomment-7002315562).
+Python/Acacia/SQLite direction is accepted for further investigation, not a validated
+build or product. [B01a](b01a-acquisition-policy.md) investigates the remaining
+device/mount gate and returns no-go for arbitrary-export acquisition.
 
 ## Assignment and bounds
 
@@ -25,14 +29,15 @@ Worker inference is development assistance, not product-local AI.
 
 | Decision | Proposed direction | Status / consequence |
 | --- | --- | --- |
-| ADR-1 runtime | Python modular CLI instead of the original TypeScript/Node proposal | **Proposed**, owner pending. Standard-library descriptor acquisition and SQLite avoid a second runtime/native acquisition addon |
-| ADR-2 evidence bundles | Retain frozen files, JSON Schema 2020-12 and RFC8785; Python descriptor-relative acquisition | **Proposed**, owner pending. Synthetic substitution tests pass on Mac/APFS; device-node/mount safety is **unverified/blocking for B02**. Node path-only acquisition is **blocked/no-go** |
-| ADR-3 adapter | Interpret only exact `2025-02-24.acacia` subscription snapshots initially | **Proposed**, owner pending. Basil is version-grounded but deliberately unsupported in the first slice |
-| ADR-4 synthetic store | SQLite, explicit transactions, rollback journal, close/reopen assertions | **Proposed**, owner pending. Store feasibility passes; packaged handler, isolation and B04 assertions are future work |
+| ADR-1 runtime | Python modular CLI instead of the original TypeScript/Node proposal | Conditional direction accepted; exact runtime/build remains gated. Stdlib acquisition primitives and SQLite demonstrated; additional mount-policy needs remain open |
+| ADR-2 evidence bundles | Retain frozen files, JSON Schema 2020-12 and RFC8785; Python descriptor-relative acquisition | Research accepted, implementation gated. Synthetic substitution tests pass on Mac/APFS; device-node/mount safety is **unverified/blocking for B02**. Node path-only acquisition is **blocked/no-go** |
+| ADR-3 adapter | Interpret only exact `2025-02-24.acacia` subscription snapshots initially | Conditional direction accepted; full fixtures remain gated. Basil is version-grounded but deliberately unsupported in the first slice |
+| ADR-4 synthetic store | SQLite, explicit transactions, rollback journal, close/reopen assertions | Conditional direction accepted. Store feasibility passes; packaged handler, isolation and B04 assertions are future work |
 
-ADR-5 optional product AI remains deferred. No runtime switch or new dependency is
-accepted by this record. Coordinator review and an explicit owner decision route
-these recommendations to B02; green research tests alone do not authorize it.
+ADR-5 optional product AI remains deferred. No runtime or new dependency was
+installed for this research. B01's review/approval accepts conditional directions;
+remaining gates and a separate authorization precede B02. Green research tests
+alone do not authorize it.
 
 ### Observed environment versus proposed pins
 
@@ -162,6 +167,8 @@ every possible Node native helper. Python is the explicit alternative recommenda
 
 **Unverified/blocking B02 prerequisite:** establish and review an enforceable
 device-node/mount threat policy before using acquisition on arbitrary exports.
+The [B01a policy decision](b01a-acquisition-policy.md) distinguishes nodev device
+dispatch from mount traversal and trusted intake; arbitrary acquisition stays no-go.
 The research assumes only its generated regular files, directories, symlinks and
 FIFO, with no device nodes, hostile mounts or external tree mutation except test
 hooks. A device open may have side effects before rejection; mount substitution
@@ -291,6 +298,13 @@ were rerun successfully. Unchanged Node/sample results above are retained from t
 initial worker run and coordinator verification, not claimed as new reruns. R2's
 device/mount risk remains an explicit unverified B02 blocker, not a fixed mechanism.
 
+Later corrections: R4/R5 fixed-literal SQL alerts were reviewed as false positives.
+Founder-authorized R7 replaced both interpolated sites with literal SQL for static
+review, retaining table order and transaction behavior. All five store tests and
+required checks passed; fresh Sourcery succeeded at `493027222584493d9722ec2dbfbba39043b53310`.
+Only the subsequent replacement briefing received founder merge approval. Earlier
+failed checks and superseded unapproved snapshots remain historical, not erased.
+
 Research retrieval failures: Python urllib failed certificate verification against
 PyPI; used curl with verification enabled instead, without modifying trust settings.
 One multi-source curl inspection hit the 120-second command timeout; bounded retries
@@ -302,21 +316,29 @@ network-isolation test or pilot was run. This record does not claim those result
 
 ## B02 prerequisites and next route
 
-1. Coordinator independently reruns the research and reviews each A1–A6 criterion;
-   owner confirms or rejects ADR-1–4 recommendations for the reviewed revision.
+1. **Completed for B01 research:** coordinator verification and founder approval of
+   the final R7 revision accepted conditional directions, not product readiness.
 2. Approve the exact runtime build and SQLite linkage; prepare a reproducible local
    runtime/dependency lock with licenses, then rerun acquisition/store and schema/JCS
    vectors on it. Future candidate pins have not inherited the installed-stack results.
 3. Review the explicit Acacia-only support matrix and full narrow-slice fixtures,
     including created/deleted, unsupported Basil, thin/unknown versions and missing scope.
+   [B01b](b01b-fixture-corpus.md) now supplies coordinator-verified finite fixture
+   evidence; the integrated revision awaits re-verification and founder approval.
+   Complete provider/schema validation, canonical identity/hash oracles and
+   missing-event-ID output disposition remain open.
 4. Resolve the unverified device-node/mount acquisition policy above before arbitrary
    export-tree acquisition; synthetic FIFO and symlink tests do not satisfy this gate.
+   B01a's accepted research NO-GO retains this gate; producer-created intake is an
+   unaccepted workflow proposal, not an authorized acquisition boundary.
 5. Open a bounded B02 issue/branch for one manifest, two events, one attempt, one
    handler observation and one state snapshot. Implement freeze/validate/normalize
    with located errors, declared hash/size checks, invariant enforcement and interruption
    tests. No report generation, networking, AI or fixture execution in that slice.
 
-The expensive-to-reverse choice is the secure Store/runtime boundary. Python removes
-the helper seam; Node remains viable only after a separately reviewed secure helper.
-Runtime artifacts, dependency locks and B02 implementation remain blocked on that
-owner choice. The source experiments are disposable research, not production modules.
+The expensive-to-reverse choice is the secure Store/runtime boundary. Python avoids
+a second-runtime helper for the B01 primitives; any added native mount-policy support
+still needs review. Node remains viable only after a separately reviewed secure helper.
+Runtime artifacts, dependency locks and B02 implementation remain blocked on the
+remaining build/acquisition gates and separate authorization. The source experiments
+are disposable research, not production modules.
