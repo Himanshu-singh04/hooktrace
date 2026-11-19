@@ -1,6 +1,7 @@
 # B01b narrow synthetic fixture corpus
 
-Status: in progress for [issue #12](https://github.com/Himanshu-singh04/hooktrace/issues/12).
+Status: worker corpus ready for independent oracle review for
+[issue #12](https://github.com/Himanshu-singh04/hooktrace/issues/12).
 Original founder instruction: “ok proceed with the further tasks”, following
 authorization for independent rolling work with sequential exact-revision approvals.
 The issue preserves the full refined scope and A1–A6 acceptance criteria.
@@ -23,7 +24,7 @@ they are not complete Stripe responses or provider-certified fixtures.
 All semantics follow the existing [contract](evidence-contract.md), B01 support
 matrix, and T01/T02/T08/T09 in [testing](testing.md). No importer, normalized output,
 correlation, canonical serializer, freeze/publication layer or handler is delivered.
-The small stdlib harness will read only explicitly listed repository fixtures;
+The small stdlib harness reads only explicitly listed repository fixtures;
 mutations and forbidden-path strings stay in memory. Golden normalized IDs/JCS
 payload hashes remain pending an independent canonicalization oracle.
 
@@ -61,3 +62,158 @@ Provider declarations are Stripe/Ask Bjørn Hansen MIT-licensed source; only lin
 field names and original synthetic values are used. Website docs are cited, not
 relicensed as MIT. Hand-reviewed expectations are worker research proposals until
 the coordinator independently audits them; no normalizer generates its own goldens.
+
+## Corpus inventory and independent expectations (A2)
+
+All paths below are within `experiments/b01b/`. The manifest contains unique IDs and
+five mappings: one per data source; citation-only `meta` has none. All use the cited
+`scope-test`: account `acct_synthetic`, test environment `sandbox_synthetic`, unknown
+context. Source order deliberately places handlers before attempts.
+
+| Logical source | File | Bytes | SHA-256 |
+| --- | --- | ---: | --- |
+| updated | events-updated.json | 688 | `79df2dedab36d64116f39aef3be93e44333eb9a4c72f840194ff564e03211b1a` |
+| deleted | events-deleted.json | 605 | `83d07e60341a22e97d80b435d176a9a29542bc45b64ffd3856e4ad68bffb0e58` |
+| handlers | handlers.jsonl | 904 | `a27f2450d3b9262f2c401d5491231a0c05742e808dd92c249516360c0167875b` |
+| attempts | attempts.jsonl | 894 | `72e98f67afa6a55438794da04cdf14caa1e32ca07b53a14dc3534b101072363a` |
+| snapshots | snapshots.jsonl | 734 | `c9a9b7e97ce21b86a52fb93b5e97c1821a76ff44dadf94b2abb81bac88c6e0fb` |
+| meta | metadata.json | 957 | `e0aca1046b1cb7518795521e220757827f5db795afce08e7e94e7bbffd50fbe7` |
+
+Manifest identity: **3221 bytes**, SHA-256
+`3bc8599e56d5a28d2a1b0d11fb86bfa815690acd71a24785329868dda4a07683`.
+This hashes exact UTF-8 file bytes, including final newlines. It is not JCS, a
+payload hash, or the frozen-manifest identity of an implemented importer.
+
+[`expected.json`](../experiments/b01b/expected.json) contains **40 manually authored
+field assertions**, expected counts, observation-origin keys, qualified row resolution
+and snapshot presence. The checker does not write this file. Positive interpretations:
+
+| Contract field/fact | Independently expected binding |
+| --- | --- |
+| Event.eventId | updated `/0/id` = `evt_synthetic_update`; deleted = `evt_synthetic_delete` |
+| Event.eventType / apiVersion / format / interpretation | respectively updated/deleted subscription types; exact Acacia; snapshot; supported within this narrow field subset (P1–P4) |
+| Event.objectId / subscriptionId / objectType | `/0/data/object/id` = `sub_synthetic`, object = `subscription`, on both exports |
+| Event.customerId | updated string `/0/data/object/customer`; deleted expanded `/0/data/object/customer/id`; both `cus_synthetic` (P4) |
+| Event.createdUnixSeconds | both `1740787200`; equal provider times neither determine delivery order nor make the events identical |
+| Event.triggerRequestId / idempotencyKey | updated `req_synthetic_origin` / `synthetic-key`; deleted request null means both unknown (P2) |
+| Attempt/Handler.requestId | receiving HTTP `http_synthetic_receipt` plus cited request namespace; never joined to originating API request |
+| Handler.attemptRef | `handlers/h1` resolves to `attempts/a1`, although the target source comes later; this is a source assertion, not proven causality |
+| Snapshot | observed persisted read, access **false**, status canceled, processed count **0**, tombstone **absent**, mutation count **unknown** |
+
+There are **five observations**, not five unique business effects: two events and one
+each attempt/handler/snapshot. Origins are source/pointer/collection tuples; the
+contract's derived observation ID additionally includes raw source hash and RFC8785.
+`rowId`, `eventId`, origin tuple and final derived ID are different identities. No
+derived ID or canonical payload hash is emitted. Duplicate exports add a distinct
+logical source and origin even when raw bytes, hash and provider ID are identical.
+
+### Oracle boundary and unresolved missing identity
+
+The field values and variant outcomes were written from the cited contract and
+tagged declarations, then checked against source bytes. They are not output captured
+from an implementation under test. The harness's predicates are reviewable research
+logic, **not an independent certification of their own correctness**; the coordinator
+must audit both the expected table and predicates against those authorities.
+
+B01 classifies absent required event/entity/customer identity as `insufficient`.
+The normalized Event type nevertheless requires a non-null `eventId`. Therefore the
+missing-event-ID variant asserts only the interpretation/evidence category; it does
+not invent a placeholder ID or emit an invalid Event. Retention/diagnostic/output
+disposition requires an explicit B02 contract clarification. Known identity conflicts
+are fatal; an unknown boundary is not a known contradiction. A raw account missing
+from one payload may use the explicit cited scope, still without authenticity.
+
+## Finite variants and corruption controls (A3–A5)
+
+[`variants.json`](../experiments/b01b/variants.json) is the complete **76-case table**.
+Every case has a stable ID, expected outcome, exact issue set and source/contract
+rationale. These are bounded research labels, not a new public diagnostic schema:
+
+- `fatal:*`: invalid input prevents publication (mapping/ref/scope/hash/shape errors).
+- `unsupported:*`: version/type/thin interpretation not supported; preserve evidence
+  without applying Acacia fields. This is distinct from fatal HookTrace schema errors.
+- `insufficient:*`: required identity or scope evidence unavailable.
+- `valid_unknown`: valid nullable/partial evidence; absence of an issue does not
+  establish a relationship, ordering, completeness or business result.
+- `valid`: targeted predicates accept the case, not a certification of a complete
+  provider payload, application policy or full input schema.
+
+Coverage includes created/string and deleted-customer union variants; missing identity
+and scope; conflicting account/mode/context; Basil with item-level periods, invented,
+null and missing versions, wrong event type and thin notification; missing/malformed/
+overlapping mappings; duplicate logical sources/rows; duplicate exports; forward
+same-file and cross-file references; dangling/wrong-type refs, known event/producer
+conflicts, null refs and self-retry cycle; raw byte/count/hash/manifest mismatches;
+inert absolute/parent paths; closed snapshot schema/fields/types, booleans versus
+0/strings, status case, negative/fractional/unsafe/boolean counts and inclusive maximum,
+nested/null values, unique/disjoint/allowlisted absence, empty partial values, explicit
+false tombstone; unknown namespaces, insufficient/dangling/contradictory citations;
+coverage equality, inversion, each/both null endpoints, invalid calendar/UTC format,
+contradictory captured coverage and nullable capture time.
+
+The positive bundle and table are loaded **only from nine literal filenames** in
+`FILES`. `Source.path`, citation URLs and variant path strings never drive a read.
+No root/path argument is accepted. The checker reads the repository files before
+running variants; all mutations are deep copies in memory. It is not descriptor-safe
+acquisition, an arbitrary-root importer, or authority to point at customer exports.
+
+Semantic edits apply **after raw identity verification** to parsed structures; their
+unchanged source hashes are not presented as a valid modified on-disk bundle. Raw
+integrity variants separately mutate bytes or declarations. The duplicate-export
+case uses the already-read updated bytes and a new logical ID/path, never a new file
+open. Only source/row/ref facts are evaluated: no normalized records, correlations,
+business assertions or golden report snapshots are produced. No finite mutation
+recipe is evaluated as Python, shell, a URL, or a filesystem traversal.
+
+In addition to the negative variants, five controls require rejection of:
+
+1. A raw event's appended whitespace (valid JSON, different byte identity).
+2. The manifest's appended whitespace (separate manifest identity).
+3. A wrong independently expected provider event ID (checker must not bless it).
+4. Duplicate JSON object keys.
+5. A nonfinite JSON number.
+
+The checker verifies the table's exact issue sets/categories, selected explicit
+values, observation counts/origins and qualified refs. It checks every positive
+namespace citation against captured triples and scope/coverage against captured
+metadata. Its namespace rule is deliberately bounded to this corpus's direct
+captured triples, not a general operator-mapping language. It does not implement
+complete JSON Schema validation, all numeric/depth/size limits, all producer policies,
+all malformed container shapes or arbitrary pointer structures. Passing this corpus
+does not pass all T01/T02/T08/T09 product cases. B02 must implement those separately.
+
+## Rerun evidence and limits (A6)
+
+From the repository root, with installed Python 3.13.4 and existing actionlint 1.7.12:
+
+```sh
+python3 experiments/b01b/check_corpus.py
+python3 scripts/check_repository.py
+python3 -m unittest discover -s scripts -p 'test_*.py'
+/Volumes/AIWorkspace/caches/actionlint/1.7.12/actionlint -shellcheck= -pyflakes=
+git diff --check 97f1669ddd92a510f7d637429b1c21f53713ae40
+```
+
+Local outcomes (all exit 0): corpus **6 raw sources + manifest identity, 40 facts,
+5 observations, 76 variants, 5 additional corruption controls**; repository formatting/
+relative-link check passed; **25 policy tests passed**; actionlint passed; full-diff
+whitespace check passed. Inline Git boundary assertions confirmed only new B01b paths,
+approved base, preserved B01a branch at `65be90c910d5448afe067239efa301f3c8d89b4f`, and
+unchanged B01 experiments. Initial 72- and 75-case corpus runs also passed; later
+coverage-citation/invalid-container cases and unsupported-with-scope-conflict control
+were added during self-review, not to mask a failed check. No local check failure.
+The early checkpoint's live CI history and final SHA/CI/attribution are recorded in
+[PR #13](https://github.com/Himanshu-singh04/hooktrace/pull/13); any bot-displaced final
+trailer is restored while preserving its summary. Repository checks do not certify
+these semantic expectations. No schema/JCS dependency installed; no candidate
+Python/SQLite build validated.
+Not run: B02 importer, freeze/publication, acquisition/mount/device probes, product
+isolation/network-denied tests, complete Stripe schemas/SDK validation, handler/store
+execution, correlation, canonicalization conformance or customer exports. Unchanged
+B01 probes retain their prior evidence and were not rerun for this fixture-only task.
+
+B01a's delivered research is no-go for arbitrary exports; its policy, runtime/build,
+schema/JCS, isolation and separate B02 authorization gates remain open. This branch
+does not contain or modify pending B01a files. Corpus readiness addresses one fixture
+prerequisite only. A1–A6 are delivered for coordinator review; independent oracle
+audit and founder approval remain unverified/pending, not implied by green checks.
