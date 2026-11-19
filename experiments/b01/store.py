@@ -1,6 +1,7 @@
 """SQLite transaction feasibility only; not the packaged B04 handler/fixture."""
 from contextlib import closing
 from pathlib import Path
+import re
 import sqlite3
 import tempfile
 import unittest
@@ -21,7 +22,7 @@ def reset(db):
     try:
         db.execute("CREATE TABLE IF NOT EXISTS state (id TEXT PRIMARY KEY, access INTEGER NOT NULL CHECK(access IN (0,1)))")
         db.execute("CREATE TABLE IF NOT EXISTS tombstone (id TEXT PRIMARY KEY)")
-        db.execute("CREATE TABLE IF NOT EXISTS processed (event_id TEXT PRIMARY KEY)")
+        db.execute("CREATE TABLE IF NOT EXISTS processed (event_id TEXT PRIMARY KEY NOT NULL)")
         for table in ("state", "tombstone", "processed"):
             db.execute(f"DELETE FROM {table}")
         db.execute("COMMIT")
@@ -32,6 +33,8 @@ def reset(db):
 
 def apply(db, event_id, canceled, fail_at=None):
     """One synthetic ID and policy; caller supplies no exported provider data."""
+    if type(event_id) is not str or re.fullmatch(r"[A-Za-z0-9_.:-]{1,128}", event_id) is None:
+        raise ValueError("invalid synthetic event ID")
     db.execute("BEGIN IMMEDIATE")
     try:
         if db.execute("SELECT 1 FROM processed WHERE event_id=?", (event_id,)).fetchone():
@@ -90,6 +93,38 @@ class Transactions(unittest.TestCase):
             self.assertEqual(apply(db, "synthetic-cancel", True), "duplicate")
             self.assertEqual(db.total_changes, changes)
         self.assertEqual(self.read_back(), expected)
+
+    def test_invalid_ids_leave_state_and_transaction_unchanged(self):
+        with closing(connect(self.path)) as db:
+            apply(db, "synthetic-update", False)
+            before = snapshot(db)
+            changes = db.total_changes
+            for active in (False, True):
+                if active:
+                    db.execute("BEGIN IMMEDIATE")
+                for event_id in (None, None, "", " ", "bad id", "bad/id", "bad\n", "x" * 129,
+                                 0, False, b"synthetic-update", {}):
+                    with self.subTest(active=active, event_id=event_id):
+                        with self.assertRaisesRegex(ValueError, "invalid synthetic event ID"):
+                            apply(db, event_id, False)
+                        self.assertEqual(db.in_transaction, active)
+                        self.assertEqual(db.total_changes, changes)
+                        self.assertEqual(snapshot(db), before)
+                if active:
+                    db.execute("ROLLBACK")
+        self.assertEqual(self.read_back(), before)
+
+    def test_database_rejects_null_processed_id(self):
+        with closing(connect(self.path)) as db:
+            apply(db, "synthetic-update", False)
+            before = snapshot(db)
+            changes = db.total_changes
+            with self.assertRaisesRegex(sqlite3.IntegrityError, "NOT NULL"):
+                db.execute("INSERT INTO processed VALUES (?)", (None,))
+            self.assertFalse(db.in_transaction)
+            self.assertEqual(db.total_changes, changes)
+            self.assertEqual(snapshot(db), before)
+        self.assertEqual(self.read_back(), before)
 
     def test_atomic_rollback_at_each_write_and_retry(self):
         for boundary in ("state", "tombstone", "dedup"):

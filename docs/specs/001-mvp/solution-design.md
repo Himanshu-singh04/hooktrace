@@ -388,7 +388,9 @@ observations, exact candidate pins, tradeoffs and B02 prerequisites for ADR-1–
   Rationale: inspectability/reproduction; trade-off: bounded dataset scale and explicit
   publication/recovery. Canonicalization/schema-library and descriptor-relative file
   acquisition feasibility: demonstrated with installed Python on Mac/APFS in B01;
-  rerun approved runtime/build before B02. Node path-only is no-go. User confirmed: **Pending**.
+  only generated synthetic trees tested. Device-node/mount safety remains unverified
+  and blocking for B02; rerun approved runtime/build. Node path-only is no-go.
+  User confirmed: **Pending**.
 - [ ] ADR-3: Narrow snapshot adapter and conservative deterministic rules.
   Rationale: source-level traceability; trade-off: unsupported versions/types stay
   uninterpreted. B01 proposes exact Acacia support and unsupported Basil/context;

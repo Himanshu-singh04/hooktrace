@@ -1,4 +1,9 @@
-"""Synthetic Mac acquisition feasibility, not the B02 importer. Stdlib only."""
+"""Run only the built-in tests against their own generated synthetic trees.
+
+Not an acquisition API for customer/arbitrary trees: device-node opens can have
+side effects before fstat rejection. Device/mount safety remains unverified and
+blocks production acquisition; O_NONBLOCK only addresses the synthetic FIFO test.
+"""
 from contextlib import ExitStack
 import errno
 import hashlib
@@ -8,6 +13,7 @@ import platform
 import stat
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 SCRATCH = Path("/Volumes/AIWorkspace/caches/hooktrace/b01")
@@ -24,7 +30,9 @@ def metadata(info):
 
 
 def capture(root, relative, hook, opened):
-    """Pin from /, then open each component relative to retained descriptors."""
+    """Test helper for generated trees only; pin from / without resolving paths."""
+    if not root.is_absolute() or ".." in root.parts:
+        raise ValueError("invalid root")
     if os.open not in os.supports_dir_fd or not hasattr(os, "O_NOFOLLOW"):
         raise RuntimeError("PLATFORM_UNSUPPORTED")
     parts = relative.split("/")
@@ -53,7 +61,7 @@ def capture(root, relative, hook, opened):
                 raise ValueError("not a directory")
             hook("after-ancestor")
         hook("before-leaf")
-        # NONBLOCK permits rejecting a FIFO with fstat without waiting for a writer.
+        # NONBLOCK avoids waiting on our synthetic FIFO, not device-open effects.
         leaf = acquire(parts[-1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, parent)
         before = os.fstat(leaf)
         if not stat.S_ISREG(before.st_mode):
@@ -118,6 +126,15 @@ class Acquisition(unittest.TestCase):
     def test_positive_manifest_and_nested_source(self):
         for relative in ("manifest.json", "nested/source.json"):
             self.assert_original(relative)
+
+    def test_invalid_roots_rejected_without_opens(self):
+        for root in (Path("ignored") / self.root.relative_to("/"),
+                     self.root / ".." / "input"):
+            with self.subTest(root=root), patch("os.open", wraps=os.open) as open_call:
+                with self.assertRaisesRegex(ValueError, "invalid root"):
+                    capture(root, "manifest.json", lambda stage: None, self.opened)
+                open_call.assert_not_called()
+                self.assertEqual(self.opened, [])
 
     def test_root_substitution_before_pin_rejected(self):
         def hook(stage):

@@ -26,7 +26,7 @@ Worker inference is development assistance, not product-local AI.
 | Decision | Proposed direction | Status / consequence |
 | --- | --- | --- |
 | ADR-1 runtime | Python modular CLI instead of the original TypeScript/Node proposal | **Proposed**, owner pending. Standard-library descriptor acquisition and SQLite avoid a second runtime/native acquisition addon |
-| ADR-2 evidence bundles | Retain frozen files, JSON Schema 2020-12 and RFC8785; Python descriptor-relative acquisition | **Proposed**, owner pending. Mechanism demonstrated on the observed Mac/APFS; Node path-only acquisition is **blocked/no-go** |
+| ADR-2 evidence bundles | Retain frozen files, JSON Schema 2020-12 and RFC8785; Python descriptor-relative acquisition | **Proposed**, owner pending. Synthetic substitution tests pass on Mac/APFS; device-node/mount safety is **unverified/blocking for B02**. Node path-only acquisition is **blocked/no-go** |
 | ADR-3 adapter | Interpret only exact `2025-02-24.acacia` subscription snapshots initially | **Proposed**, owner pending. Basil is version-grounded but deliberately unsupported in the first slice |
 | ADR-4 synthetic store | SQLite, explicit transactions, rollback journal, close/reopen assertions | **Proposed**, owner pending. Store feasibility passes; packaged handler, isolation and B04 assertions are future work |
 
@@ -132,15 +132,21 @@ a completed transitive-license/security audit.
 
 ## Acquisition experiment (A2)
 
-[acquisition.py](../experiments/b01/acquisition.py) opens `/` as the trusted anchor,
+[acquisition.py](../experiments/b01/acquisition.py) is restricted to its built-in
+tests and their own generated synthetic trees, not customer/arbitrary trees or a
+reusable acquisition API. It rejects nonabsolute roots and any root `..` component
+before opening descriptors; it does not normalize or resolve those inputs.
+It opens `/` as the trusted anchor,
 walks every root component with `O_DIRECTORY|O_NOFOLLOW` relative to retained
 directory descriptors, then traverses the source identically. It applies the same
 leaf procedure to `manifest.json` and nested source bytes. `fstat` verifies directory
 and regular-file types; device/inode identities match synthetic setup oracles.
 Read/hash/size/metadata checks use that same descriptor, and `ExitStack` owns closure.
-`O_NONBLOCK` allows a FIFO to be rejected before a blocking read.
+`O_NONBLOCK` allows the generated FIFO to be rejected before a blocking read, but
+does not make device-node opens harmless: opening occurs before `fstat` rejection.
 
-Ten passing tests cover positive controls, root/ancestor symlinks introduced before
+Eleven passing tests cover positive controls, invalid roots with zero `os.open`
+calls/recorded descriptors, root/ancestor symlinks introduced before
 and after pinning, leaf swaps before/after opening, in-place mutation, FIFO/directory
 rejection, invalid relative paths and four injected failure boundaries. Every opened
 descriptor is checked for `EBADF` after success or exception. Post-open renames may
@@ -154,7 +160,17 @@ but substituting the ancestor redirects an `O_NOFOLLOW` path open to
 `outside-sentinel`. `fs.openat` is undefined. This rejects the path-only design, not
 every possible Node native helper. Python is the explicit alternative recommendation.
 
-Limits: this is acquisition feasibility, not immutable freezing/publication. It
+**Unverified/blocking B02 prerequisite:** establish and review an enforceable
+device-node/mount threat policy before using acquisition on arbitrary exports.
+The research assumes only its generated regular files, directories, symlinks and
+FIFO, with no device nodes, hostile mounts or external tree mutation except test
+hooks. A device open may have side effects before rejection; mount substitution
+is not addressed. No safe production policy was established by this spike.
+Pre-`lstat` followed by opening is not a race-safe remedy. No device creation,
+privileged tests, mount changes or customer trees were used. These results do not
+establish full secure acquisition readiness.
+
+Other limits: this is acquisition feasibility, not immutable freezing/publication. It
 does not implement declared-source hash validation, full importer limits, hard-link
 policy, a filesystem snapshot, protection from an authorized in-place writer,
 mount replacement, permission sandboxing, crash, unplug or power-loss tests. Owners
@@ -210,14 +226,20 @@ No Stripe keys, account, CLI or live API call was used.
 [store.py](../experiments/b01/store.py) uses the observed SQLite 3.49.1 through
 stdlib `sqlite3`: explicit `BEGIN IMMEDIATE`/`COMMIT`/`ROLLBACK`, `isolation_level=None`,
 `journal_mode=DELETE`, `synchronous=FULL`. State, cancellation tombstone and processed
-event ID occupy three tables in one transaction. A primary key enforces deduplication.
+event ID occupy three tables in one transaction. A `NOT NULL` primary key enforces
+non-null deduplication; the experiment boundary accepts only string IDs of 1–128
+ASCII letters/digits or `_.:-`, rejecting invalid IDs before any transaction begins.
 Every operation uses one synthetic subscription; no imported payload or handler runs.
 
-Three passing tests demonstrate: active state read after close/reopen; cancellation
+Five passing tests demonstrate: active state read after close/reopen; cancellation
 and dedup recorded together; duplicate causes zero additional writes; injected faults
 after each of the three writes roll everything back to the prior reopened state;
 retry succeeds; tombstone survives reopen and prevents a later synthetic update from
 restoring access; transactional reset empties all tables and permits reuse of event IDs.
+Invalid IDs (including repeated nulls) leave state, write count and existing/absent
+transaction state unchanged. A direct null insertion also fails the database's
+`NOT NULL` constraint, with unchanged reopened state. These are fresh disposable
+databases; no product migration is introduced.
 Each read-back uses a fresh connection and `integrity_check=ok`; returns/logs alone
 are not the oracle. Temporary databases and generated payloads live in a fresh owned
 cache directory outside Git and are cleaned after each test.
@@ -252,14 +274,22 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 git diff --check
 ```
 
-Observed experiment exits: **0** for all four; acquisition **10 tests passed**,
-Node **expected path-only NO-GO confirmed**, store **3 tests passed**, samples
+Observed experiment exits: **0** for all four; acquisition **11 tests passed**,
+Node **expected path-only NO-GO confirmed**, store **5 tests passed**, samples
 **1 test passed**. After staging all new files: repository formatting/links **passed**,
 policy unit tests **25 passed**, actionlint **exit 0**, `git diff --check` and
 `git diff --cached --check` **exit 0**. SDD comparison against both handoff main and
 the required template found **55 identical headings**, no clarification placeholders.
 Remote PR-record and CI outcomes are recorded in the PR timeline. Mac research is manually rerunnable;
 existing GitHub CI checks repository/policy, not these Mac/APFS claims.
+
+Coordinator correction round R1–R3: the reviewed baseline had 10 acquisition and
+3 store tests passing, but missed relative-root misinterpretation and nullable
+dedup IDs. The added regressions now bring those suites to 11 and 5 passing tests.
+Repository check, 25 policy tests, actionlint, diff checks and SDD heading preservation
+were rerun successfully. Unchanged Node/sample results above are retained from the
+initial worker run and coordinator verification, not claimed as new reruns. R2's
+device/mount risk remains an explicit unverified B02 blocker, not a fixed mechanism.
 
 Research retrieval failures: Python urllib failed certificate verification against
 PyPI; used curl with verification enabled instead, without modifying trust settings.
@@ -278,8 +308,10 @@ network-isolation test or pilot was run. This record does not claim those result
    runtime/dependency lock with licenses, then rerun acquisition/store and schema/JCS
    vectors on it. Future candidate pins have not inherited the installed-stack results.
 3. Review the explicit Acacia-only support matrix and full narrow-slice fixtures,
-   including created/deleted, unsupported Basil, thin/unknown versions and missing scope.
-4. Open a bounded B02 issue/branch for one manifest, two events, one attempt, one
+    including created/deleted, unsupported Basil, thin/unknown versions and missing scope.
+4. Resolve the unverified device-node/mount acquisition policy above before arbitrary
+   export-tree acquisition; synthetic FIFO and symlink tests do not satisfy this gate.
+5. Open a bounded B02 issue/branch for one manifest, two events, one attempt, one
    handler observation and one state snapshot. Implement freeze/validate/normalize
    with located errors, declared hash/size checks, invariant enforcement and interruption
    tests. No report generation, networking, AI or fixture execution in that slice.
