@@ -23,8 +23,9 @@ def reset(db):
         db.execute("CREATE TABLE IF NOT EXISTS state (id TEXT PRIMARY KEY, access INTEGER NOT NULL CHECK(access IN (0,1)))")
         db.execute("CREATE TABLE IF NOT EXISTS tombstone (id TEXT PRIMARY KEY)")
         db.execute("CREATE TABLE IF NOT EXISTS processed (event_id TEXT PRIMARY KEY NOT NULL)")
-        for table in ("state", "tombstone", "processed"):
-            db.execute(f"DELETE FROM {table}")
+        db.execute("DELETE FROM state")
+        db.execute("DELETE FROM tombstone")
+        db.execute("DELETE FROM processed")
         db.execute("COMMIT")
     except BaseException:
         db.execute("ROLLBACK")
@@ -60,8 +61,11 @@ def apply(db, event_id, canceled, fail_at=None):
 
 
 def snapshot(db):
-    return tuple(db.execute(f"SELECT * FROM {table} ORDER BY 1").fetchall()
-                 for table in ("state", "tombstone", "processed"))
+    return (
+        db.execute("SELECT * FROM state ORDER BY 1").fetchall(),
+        db.execute("SELECT * FROM tombstone ORDER BY 1").fetchall(),
+        db.execute("SELECT * FROM processed ORDER BY 1").fetchall(),
+    )
 
 
 class Transactions(unittest.TestCase):
