@@ -1,0 +1,31 @@
+{
+  "id": "evt_synthetic_basil",
+  "object": "event",
+  "api_version": "2025-03-31.basil",
+  "created": 1743465600,
+  "livemode": false,
+  "type": "customer.subscription.updated",
+  "data": {
+    "object": {
+      "id": "sub_synthetic",
+      "object": "subscription",
+      "customer": "cus_synthetic",
+      "livemode": false,
+      "status": "active",
+      "items": {
+        "object": "list",
+        "data": [{
+          "id": "si_synthetic",
+          "object": "subscription_item",
+          "subscription": "sub_synthetic",
+          "current_period_start": 1743465600,
+          "current_period_end": 1746057600
+        }],
+        "has_more": false,
+        "url": "/v1/subscription_items?subscription=sub_synthetic"
+      }
+    }
+  },
+  "request": {"id": null, "idempotency_key": null},
+  "pending_webhooks": 0
+}

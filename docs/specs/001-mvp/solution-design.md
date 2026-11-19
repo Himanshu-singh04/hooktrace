@@ -1,6 +1,6 @@
 ---
 title: "HookTrace offline subscription investigation MVP"
-status: draft-for-owner-review
+status: planning-reviewed-implementation-decisions-pending
 version: "0.1"
 ---
 
@@ -17,7 +17,7 @@ no unresolved body clarification markers remain. ADRs are still review proposals
 - [x] Required sections populated; template heading sequence preserved.
 - [x] No unresolved clarification markers; open decisions recorded as ADRs.
 - [x] Architecture pattern and rationale stated.
-- [ ] All architecture decisions confirmed by user: pending documentation PR review.
+- [ ] All architecture decisions confirmed by user: planning PR #5 is merged; exact B01 choices remain pending.
 - [x] Proposed interfaces specified or linked; implementation schemas remain future work.
 
 ### QUALITY CHECKS (Should Pass)
@@ -25,7 +25,7 @@ no unresolved body clarification markers remain. ADRs are still review proposals
 - [x] Context relevance, discovered commands, component/directory mapping documented.
 - [x] Constraints, requirements, interfaces, errors, and test targets connected.
 - [x] Naming and responsibility boundaries reviewed for overlap.
-- [ ] Runtime/version and adapter compatibility spike completed before implementation.
+- [ ] B01 runtime/build and adapter recommendations confirmed before implementation; research results available, owner decision pending.
 - [ ] Product tests executed: no product runtime exists.
 
 ## Constraints
@@ -34,10 +34,12 @@ CON-1: Agreed scope is an offline, independent product with zero new initial pai
 hosting/inference; use local synthetic fixtures, not live Stripe or remote replay.
 CON-2: Imported evidence is inert and incomplete; delivery, execution, and business
 effect must remain distinct. Event creation time is not arrival or causal order.
-CON-3: Source/docs live on the pendrive; Mac CPU/RAM execute work. No dedicated
-project worker/server is provisioned. See [operations](../../operations.md).
-CON-4: This PR is documentation only. Proposed TypeScript/Node, file storage,
-dependency/version choices, and fixture policy require owner approval.
+CON-3: Source/docs and dedicated worker history/OAuth live on pendrive; Mac CPU/RAM
+execute work. Coordinator history/App key stay on Mac; provisioning #7 is complete.
+See [operations](../../operations.md). Worker inference is not product-local AI.
+CON-4: Planning PR #5 is complete. [B01 research](../../b01-decisions.md) compares
+runtime/file acquisition, dependency/version, payload and store choices; owner
+confirmation remains pending before product implementation.
 
 ## Implementation Context
 
@@ -52,6 +54,7 @@ dependency/version choices, and fixture policy require owner approval.
 | [AGENTS](../../../AGENTS.md), [contributing](../../../CONTRIBUTING.md) | HIGH | Repository boundaries and actual checks |
 | [Development](../../development.md), [foundation](../../foundation.md) | HIGH | Delivery policy and current implementation status |
 | [Testing](../../testing.md), [roadmap](../../roadmap.md), [operations](../../operations.md) | HIGH | Verification, dependencies, and actual execution constraints |
+| [B01 research](../../b01-decisions.md) | CRITICAL | Observed acquisition/store feasibility, exact candidate versions, primary sources and unresolved implementation gates |
 | [Stripe webhooks](https://docs.stripe.com/webhooks) | HIGH | Acknowledgments, retries, duplicate events, ordering, signature requirements |
 | [Stripe Event object](https://docs.stripe.com/api/events/object) | HIGH | Event identity, creation time, API-version and account/context fields |
 | [Subscription webhooks](https://docs.stripe.com/billing/subscriptions/webhooks) | HIGH | Subscription event meanings and limits of invoice/access inference |
@@ -68,7 +71,8 @@ the docs' latest examples as a runtime/version decision. No Stripe API calls wer
 `scripts/check_repository.py` (HIGH) validates tracked text and local Markdown file
 links; new untracked docs require an extra check. `scripts/test_*.py` (HIGH) tests
 repository policy, not product behavior. README (HIGH) has no application commands.
-No application manifest, SDK, database, or reusable runtime module exists.
+No application manifest, SDK, product database, or reusable runtime module exists.
+`experiments/b01/` contains isolated research, not production modules.
 
 #### External APIs (if applicable)
 
@@ -126,7 +130,7 @@ private. Breaking schemas get a new major version, never silent rewriting.
 
 ### Project Commands
 
-Only these checks currently exist, from CONTRIBUTING.md:
+Repository checks from CONTRIBUTING.md:
 
 ```sh
 python3 scripts/check_repository.py
@@ -136,14 +140,16 @@ git diff --check
 ```
 
 Install/dev/build/migrate/application commands: N/A until an approved runtime task.
+Isolated research reruns and exact outcomes are in the [B01 record](../../b01-decisions.md).
 
 ## Solution Strategy
 
 Propose a modular monolith CLI with pure normalization/analysis/rendering functions
 and a small filesystem shell. Fixed local inputs support auditable repeatability;
 no database server, queue, hosted UI, or inference service is needed for the first bug.
-TypeScript fits JSON contracts and a Node handler fixture, but an exact supported
-runtime and packaging approach must be checked before choosing dependencies.
+The initial TypeScript proposal fits JSON contracts and a Node handler fixture.
+B01 instead recommends Python to obtain secure acquisition without a second runtime
+or native helper; exact runtime/build and packaging remain pending owner approval.
 Separate observations from hypotheses, and production evidence from model output.
 
 ## Building Block View
@@ -370,21 +376,27 @@ cycles or imports from analysis into filesystem/fixture execution modules.
 ## Architecture Decisions
 
 All implementation-impacting decisions below are proposals; none claims owner confirmation.
+Planning review is complete; the [B01 decision frontier](../../b01-decisions.md) records
+observations, exact candidate pins, tradeoffs and B02 prerequisites for ADR-1–4.
 
-- [ ] ADR-1: TypeScript/Node modular CLI rather than Python CLI or hosted service.
-  Rationale: typed JSON and handler familiarity; trade-off: runtime/toolchain packaging.
-  Exact supported Node/TypeScript versions, package manager, and test tooling: B01.
+- [ ] ADR-1: B01 recommends Python modular CLI rather than the initial TypeScript/Node proposal.
+  Rationale: native descriptor-relative acquisition and stdlib SQLite; trade-off:
+  runtime build/packaging and fewer compile-time JSON guarantees. Node remains an
+  alternative only with a reviewed secure helper. Exact candidate pins: B01 record.
   User confirmed: **Pending**.
 - [ ] ADR-2: Frozen file bundles plus versioned JSON rather than a database.
   Rationale: inspectability/reproduction; trade-off: bounded dataset scale and explicit
   publication/recovery. Canonicalization/schema-library and descriptor-relative file
-  acquisition feasibility (including any native helper): B01. User confirmed: **Pending**.
+  acquisition feasibility: demonstrated with installed Python on Mac/APFS in B01;
+  rerun approved runtime/build before B02. Node path-only is no-go. User confirmed: **Pending**.
 - [ ] ADR-3: Narrow snapshot adapter and conservative deterministic rules.
   Rationale: source-level traceability; trade-off: unsupported versions/types stay
-  uninterpreted. Exact payload-version support matrix: B01. User confirmed: **Pending**.
+  uninterpreted. B01 proposes exact Acacia support and unsupported Basil/context;
+  version-grounded samples are research, not shipped compatibility. User confirmed: **Pending**.
 - [ ] ADR-4: Only a packaged terminal-cancellation ordering fixture in MVP.
   Rationale: demonstrable local effect without executing imports; trade-off: limited
-  production fidelity. Local transactional fixture-store choice: B01/B04.
+  production fidelity. B01 proposes SQLite after rollback/dedup/reset/reopen feasibility;
+  the B04 packaged fixture remains unimplemented.
   Future trusted adapters require real OS-enforced network/filesystem restriction;
   spawning a child process is not a sandbox. User confirmed: **Pending**.
 - [ ] ADR-5: Optional cited retrieval/explanations and bounded tools after MVP.

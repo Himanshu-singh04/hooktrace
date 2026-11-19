@@ -4,6 +4,8 @@ Status: planned product verification, not executed tests. Existing policy checks
 listed in [CONTRIBUTING](../CONTRIBUTING.md). Product cases below accompany future code.
 All mandatory CI fixtures are synthetic, offline, and reviewed; no paid inference,
 Stripe accounts, secrets, customer exports, or live webhook delivery are required.
+The [B01 record](b01-decisions.md) documents executed research assertions and their
+limits; those results do not establish the planned product cases below.
 
 ## Contract and behavior matrix
 

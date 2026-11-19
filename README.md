@@ -10,7 +10,7 @@ Correlate exported subscription events, logs, and state snapshots, then reproduc
 
 ## Status
 
-Repository foundation exists; the product plan below is a draft for owner review under [issue #4](https://github.com/Himanshu-singh04/hooktrace/issues/4). The proposed MVP investigates exported Stripe subscription evidence offline and reproduces an ordering bug in a bundled synthetic handler. Architecture decisions remain pending; no product runtime, release, or dedicated project worker/server exists. Current commands are only the checks in [CONTRIBUTING](CONTRIBUTING.md).
+Planning/rename [PR #5](https://github.com/Himanshu-singh04/hooktrace/pull/5) and persistent-worker [provisioning #7](https://github.com/Himanshu-singh04/hooktrace/issues/7) are complete. The proposed MVP investigates exported Stripe subscription evidence offline and reproduces an ordering bug in a bundled synthetic handler. Exact implementation decisions remain pending; no product runtime or release exists. [B01 research](docs/b01-decisions.md) supplies rerunnable acquisition/store experiments and recommendations for owner approval; repository checks are in [CONTRIBUTING](CONTRIBUTING.md).
 
 ## Product documentation
 
@@ -29,7 +29,7 @@ Local checkout: `/Volumes/AIWorkspace/projects/hooktrace`.
 
 Execution will use existing local or customer-owned resources, with no new initial founder hosting or inference expenditure. This product has an independent repository and release lifecycle.
 
-Source/docs are on the pendrive; computation uses Mac CPU/RAM. Current session history and credentials remain on the Mac. Model/cache redirection and dedicated worker storage are not configured; see [operations](docs/operations.md).
+Source/docs and dedicated worker history/OAuth are on the pendrive; computation uses Mac CPU/RAM. Coordinator history and the GitHub App key remain on the Mac. Worker inference is development assistance, not product-local AI; see [operations](docs/operations.md).
 
 ## Git workflow
 
@@ -43,4 +43,4 @@ agent attribution, and evidence requirements.
 - Report the commit and push result to the coordinator. A local commit is not a remote backup until the push succeeds.
 - Use task branches for substantive implementation work and preserve unrelated changes.
 
-These plans are review proposals. Product implementation and measured acceptance evidence follow approved, bounded tasks.
+Planning review is complete; exact runtime, dependencies, acquisition, payload and store choices still require owner confirmation. Product implementation follows approved, bounded tasks.

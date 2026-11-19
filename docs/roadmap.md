@@ -1,7 +1,7 @@
 # Roadmap and bounded backlog
 
-Status: proposal under [issue #4](https://github.com/Himanshu-singh04/hooktrace/issues/4).
-No product milestone below has shipped; ordering denotes dependencies, not dates.
+Status: M0 planning review completed in [PR #5](https://github.com/Himanshu-singh04/hooktrace/pull/5); [B01 research](b01-decisions.md) proposes choices for owner confirmation under issue #8.
+No M1–M6 product milestone has shipped; ordering denotes dependencies, not dates.
 Each implementation task requires its own issue, reviewed acceptance, checks, and PR.
 Requirements: [product](product.md); ADRs: [design](specs/001-mvp/solution-design.md).
 
@@ -32,7 +32,7 @@ Requirements: [product](product.md); ADRs: [design](specs/001-mvp/solution-desig
 
 ## Initial bounded implementation task
 
-After documentation approval, **B01** is the first task: resolve runtime/adapter/store
+Following completed planning review, **B01** is the first task: resolve runtime/adapter/store
 choices with small synthetic experiments and a decision record. It must not quietly
 bootstrap a full application. Exit requires exact recommended versions, alternatives,
 licensing/install constraints, supported payload fixtures, secure file-acquisition
