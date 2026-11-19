@@ -1,0 +1,27 @@
+{
+  "id": "evt_synthetic_acacia",
+  "object": "event",
+  "api_version": "2025-02-24.acacia",
+  "created": 1740787200,
+  "livemode": false,
+  "type": "customer.subscription.updated",
+  "data": {
+    "object": {
+      "id": "sub_synthetic",
+      "object": "subscription",
+      "customer": "cus_synthetic",
+      "livemode": false,
+      "status": "active",
+      "current_period_start": 1740787200,
+      "current_period_end": 1743465600,
+      "items": {
+        "object": "list",
+        "data": [{"id": "si_synthetic", "object": "subscription_item", "subscription": "sub_synthetic"}],
+        "has_more": false,
+        "url": "/v1/subscription_items?subscription=sub_synthetic"
+      }
+    }
+  },
+  "request": {"id": null, "idempotency_key": null},
+  "pending_webhooks": 0
+}

@@ -1,6 +1,7 @@
 # Evidence contract v1 — proposal
 
-Status: draft, no parser or schema exists yet. Applies to HT-01–HT-09.
+Status: planning reviewed in PR #5; exact implementation choices remain pending in
+[B01](b01-decisions.md). No product parser or schema exists yet. Applies to HT-01–HT-09.
 This document is the single contract authority for the proposed input, normalized
 records, correlations, fixture runs, and reports. JSON Schemas and fixtures follow approval.
 

@@ -1,8 +1,8 @@
 # HookTrace product proposal
 
-Status: draft for owner review under [issue #4](https://github.com/Himanshu-singh04/hooktrace/issues/4).
+Status: planning review under [issue #4](https://github.com/Himanshu-singh04/hooktrace/issues/4) completed in [PR #5](https://github.com/Himanshu-singh04/hooktrace/pull/5).
 This is a proposed product, not implemented functionality or validated demand.
-Architecture approval belongs in the documentation PR; implementation follows separate tasks.
+Exact implementation choices remain gated; [B01 recommendations](b01-decisions.md) require owner confirmation before separate implementation tasks.
 
 ## Problem and first customer
 
