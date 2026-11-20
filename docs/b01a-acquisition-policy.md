@@ -6,6 +6,8 @@ merged at `529f8d5e06601def268828eaad993111987c9a76`; main
 Acceptance does not authorize acquisition implementation or producer-created intake;
 that workflow remains an unaccepted proposal. The original evidence and limits below
 are retained; no new native enforcement or runtime validation is claimed.
+The founder subsequently authorized the separate [B01c design study](b01c-producer-intake.md)
+under issue #14, not acceptance of a workflow, threat-model change or implementation.
 
 Original handoff status: **Decision ready for coordinator review**, [issue #10](https://github.com/Himanshu-singh04/hooktrace/issues/10),
 2026-11-19. **NO-GO for arbitrary-export acquisition** on the observed host or

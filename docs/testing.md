@@ -13,7 +13,7 @@ control flow only, not establish native enforcement or a trusted staging boundar
 [B01b](b01b-fixture-corpus.md) supplies one narrow synthetic bundle, 40 field facts,
 76 variants and five additional corruption controls, independently verified at its
 original head. Run `python3 -B experiments/b01b/check_corpus.py` for these fixed-file
-research checks. Integration re-verification/approval remains pending; canonical
+research checks. PR #13 is accepted fixture research; canonical
 hash/identity, missing-event-ID output disposition and full product verification
 remain separate gates.
 
