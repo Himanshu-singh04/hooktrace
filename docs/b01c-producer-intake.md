@@ -1,5 +1,11 @@
 # B01c producer-created file intake
 
+Accepted as current-setup **NO-GO research** in [PR #15](https://github.com/Himanshu-singh04/hooktrace/pull/15),
+merged at `457a84aec693c5ecb07a2ed32e8b0377c40186f0`;
+[main CI 44677019272](https://github.com/Himanshu-singh04/hooktrace/actions/runs/44677019272) passed.
+Original handoff below is preserved. [B01d](b01d-deployment-decision.md) assesses one
+deployment and recommends pausing intake; no boundary, P1–P4 or implementation accepted.
+
 Status: **Frontier-ready research; NO-GO for customer file intake on the authorized
 setup**, documentation-only study for
 [issue #14](https://github.com/Himanshu-singh04/hooktrace/issues/14).
