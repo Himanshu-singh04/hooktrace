@@ -253,8 +253,8 @@ Final checks/head/base/attribution/CI and literal Sourcery status belong in its 
 Early `pr-record` failed in **44684847520** after summary displaced trailer; preserved
 summary/restored trailer; attribution 1/1, repository/25 tests/actionlint/full-base and
 40-file/55-heading preservation checks passed. Provider `server_is_overloaded` preceded the
-full-record edit; no edit landed, no retry loop/bypass. User explicitly requested
-continuation; original deadline retained. No HTTP source failure or quota bypass.
+full-record edit; no edit landed, no retry loop/bypass. Automatic harness continuation
+used the existing bounded mandate and original deadline, not new human authorization.
 No schemas/goldens/fixtures/harness, library/native trials, existing corpus execution,
 customer/API/SDK work, accounts/outreach, installs/environment/model/permission changes
 or spend. No approval/merge/self-dispatch; all predecessor work remains preserved.
