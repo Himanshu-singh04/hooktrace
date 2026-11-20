@@ -11,6 +11,9 @@ No M1–M6 product milestone has shipped; ordering denotes dependencies, not dat
 Each implementation task requires its own issue, reviewed acceptance, checks, and PR.
 Requirements: [product](product.md); ADRs: [design](specs/001-mvp/solution-design.md).
 
+[R01 evidence availability](research/r01-evidence-availability.md), issue #18, is
+provisional research on retention/export burden; no intake or requirement change adopted.
+
 ## Ordered milestones
 
 | Milestone | Depends on | Observable exit / verification |
