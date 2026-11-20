@@ -14,6 +14,7 @@ Planning/rename [PR #5](https://github.com/Himanshu-singh04/hooktrace/pull/5), p
 
 ## Product documentation
 
+- [R01 evidence availability](docs/research/r01-evidence-availability.md): provisional research for issue #18; retention/export limits and customer workflow, pending review.
 - [Product and requirements](docs/product.md): users, hypotheses, workflows, scope, requirement IDs.
 - [Solution design](docs/specs/001-mvp/solution-design.md): proposed modular CLI, interfaces, pending ADRs.
 - [Evidence contract](docs/evidence-contract.md): versioned records, provenance, uncertainty, ordering, reports.
