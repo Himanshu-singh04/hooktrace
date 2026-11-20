@@ -323,8 +323,7 @@ network-isolation test or pilot was run. This record does not claim those result
    vectors on it. Future candidate pins have not inherited the installed-stack results.
 3. Review the explicit Acacia-only support matrix and full narrow-slice fixtures,
     including created/deleted, unsupported Basil, thin/unknown versions and missing scope.
-   [B01b](b01b-fixture-corpus.md) now supplies coordinator-verified finite fixture
-   evidence; the integrated revision awaits re-verification and founder approval.
+   [B01b](b01b-fixture-corpus.md) supplies accepted finite fixture research from PR #13.
    Complete provider/schema validation, canonical identity/hash oracles and
    missing-event-ID output disposition remain open.
 4. Resolve the unverified device-node/mount acquisition policy above before arbitrary

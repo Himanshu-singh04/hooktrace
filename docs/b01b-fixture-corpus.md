@@ -1,8 +1,10 @@
 # B01b narrow synthetic fixture corpus
 
-Status: original corpus independently verified for
-[issue #12](https://github.com/Himanshu-singh04/hooktrace/issues/12);
-accepted-main integration awaits coordinator re-verification and founder approval.
+Status: **Accepted fixture research**, [issue #12](https://github.com/Himanshu-singh04/hooktrace/issues/12).
+PR #13 merged at `313801ae7292931a6ce7e40b9f9faf73e67e33e1`;
+[main CI 44524101287](https://github.com/Himanshu-singh04/hooktrace/actions/runs/44524101287) passed.
+Original corpus and integration evidence below remain historical; acceptance does not
+close acquisition, canonicalization or product-implementation gates.
 Original founder instruction: “ok proceed with the further tasks”, following
 authorization for independent rolling work with sequential exact-revision approvals.
 The issue preserves the full refined scope and A1–A6 acceptance criteria.
@@ -68,7 +70,8 @@ field names and original synthetic values are used. Website docs are cited, not
 relicensed as MIT. The coordinator independently audited these expectations at
 `ce33c6429a0bcf9d80784280be127ff246b1457a`; see
 [verification](https://github.com/Himanshu-singh04/hooktrace/pull/13#issuecomment-7004044531).
-No normalizer generates its own goldens; the integration revision needs re-verification.
+No normalizer generates its own goldens; integration re-verification was required
+before the accepted merge recorded above.
 
 ## Corpus inventory and independent expectations (A2)
 
@@ -225,7 +228,7 @@ B01a's accepted research retains NO-GO for arbitrary exports; an enforceable acq
 boundary, runtime/build, schema/JCS, isolation and separate B02 authorization remain
 open gates. Producer-created intake remains an unaccepted workflow proposal. Corpus
 readiness addresses one fixture prerequisite only. The original A1–A6 audit passed;
-the integration revision requires coordinator re-verification and founder approval.
+integration re-verification and founder approval preceded the accepted merge above.
 
 ## Accepted-main integration
 
