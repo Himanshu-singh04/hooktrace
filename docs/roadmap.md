@@ -4,9 +4,10 @@ Status: M0 planning review completed in [PR #5](https://github.com/Himanshu-sing
 [B01 research](b01-decisions.md) accepted conditionally in PR #9. [B01a](b01a-acquisition-policy.md)
 research NO-GO was accepted in PR #11; arbitrary exports remain blocked and the
 producer-created intake workflow is still an unaccepted proposal. [B01b](b01b-fixture-corpus.md)
-fixture research is accepted in PR #13. The separately authorized documentation-only
-[B01c study](b01c-producer-intake.md) returns NO-GO for current-setup file intake;
-no final boundary or contract/threat change is accepted.
+fixture research is accepted in PR #13. [B01c](b01c-producer-intake.md) is accepted
+current-setup NO-GO research in PR #15. [B01d](b01d-deployment-decision.md) assesses
+one offline Linux deployment and recommends pausing intake; no final boundary or
+contract/threat change is accepted.
 No M1–M6 product milestone has shipped; ordering denotes dependencies, not dates.
 Each implementation task requires its own issue, reviewed acceptance, checks, and PR.
 Requirements: [product](product.md); ADRs: [design](specs/001-mvp/solution-design.md).
@@ -31,6 +32,7 @@ Requirements: [product](product.md); ADRs: [design](specs/001-mvp/solution-desig
 | B01a | Acquisition threat-policy decision after accepted B01 research; before B02 | Compare descriptor-bound nodev policy and genuinely trusted intake; exact Darwin/SDK evidence, explicit actor/device/mount/hard-link assumptions and no-go where guarantees remain unsupported. Issue #10 A1–A6; no product importer or arbitrary-tree authority |
 | B01b | Narrow synthetic fixture corpus after B01; independent of acquisition implementation | Issue #12 A1–A6 accepted in PR #13: one positive bundle, tagged field provenance, independent expectations, finite variants and fixed-file stdlib corruption checks. No canonicalizer or importer |
 | B01c | Producer-created intake design after explicit founder study authorization | Issue #14 A1–A6: customer workflow/cost, origin/actor/bootstrap authority, source-backed feasibility or NO-GO, lifecycle/future tests and unaccepted contract deltas. Documentation only; no implementation or actor-model weakening |
+| B01d | One offline Linux guest deployment decision | Issue #16 A1–A6: origin/ingress and host/guest authority, customer cost, exact unaccepted deltas and pause recommendation; three later questions for coordinator dispatch. Documentation only |
 | B02 | Implement contract/import/freeze after B01; HT-01,02,08,09 | Valid synthetic bundle imports; invalid fields/paths/refs/hashes fail with locations; descriptor-based capture resists symlink substitution; closed snapshot fields/types, disjoint presence/absence, and coverage bounds validated; immutable source hashes survive interruption; T01–02,08–09 |
 | B03 | Deterministic correlation/rules after B02; HT-03–05 | Retry/duplicate rows retained, uncertain links visible, no timestamp-derived causal claims; exact expected findings for T03–05 |
 | B04 | Packaged ordering fixture after B02 and fixture ADR; HT-06,08 | Buggy [D,U] fails access assertion; fixed both orders and duplicates pass after reset/read-back; derive typed comparisons from available persisted evidence, missing checks yield incomplete; reject inconsistent serialized assertions; no exported inputs executed; T06,08 |
@@ -44,8 +46,8 @@ Requirements: [product](product.md); ADRs: [design](specs/001-mvp/solution-desig
 **B01** is complete as conditional research, not an application or validated runtime.
 **B01a** is accepted as a research NO-GO; it does not resolve the acquisition gate or
 approve producer-created intake. **B01b** supplies the narrow synthetic corpus and
-finite expectations as accepted research. B01c studies the missing intake authority
-boundary; its proposed deltas are unaccepted. Runtime/build,
+finite expectations as accepted research. B01c's current-setup NO-GO is accepted;
+its proposed deltas remain unaccepted. Runtime/build,
 complete provider/schema validation, independent canonical identity/hash oracles,
 missing-event-ID output disposition and isolation remain open before separately
 authorizing B02. Unsupported acquisition primitives block that platform/runtime
